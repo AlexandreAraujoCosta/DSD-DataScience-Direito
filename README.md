@@ -1,4 +1,4 @@
-# Módulo DSD
+# Module dsd.py / Módulo dsd.py
 Data Science e Direito
 
 This project contains the module dsd.py, used in programs that extract data from the site of the Brazilian Supreme Courd (STF).
