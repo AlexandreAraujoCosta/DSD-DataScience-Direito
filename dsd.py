@@ -635,7 +635,7 @@ def solicitar_dados_AP (classe, numero):
 
 def solicitar_dados (dominio, path, incidente):
     user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
-    html = requests.get(dominio+path+incidente, headers = user_agent).text
+    html = requests.get(dominio+path+incidente, headers = user_agent)
     html.encoding = 'utf-8'
     html = html.text
     return html
