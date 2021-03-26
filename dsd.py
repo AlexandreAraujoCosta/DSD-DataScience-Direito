@@ -4,16 +4,25 @@ import time
 import os
 from unicodedata import normalize
 
-#biblioteca de funções
+def position1(list):
+    return(list[1])
+
+def csv_to_list(file):
+    lista = []
+    with open(file) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            lista.append(row)
+    return (lista[1:])
+
 def remover_acentos(txt):
     return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('utf-8')
 
 def extrair(fonte,MarcadorInicio, MarcadorFim):
-    inicio = fonte.find(MarcadorInicio)
-    if inicio == -1:
+    if MarcadorInicio not in fonte:
         return 'NA'
     else:
-        inicio = inicio + len(MarcadorInicio)
+        inicio = fonte.find(MarcadorInicio) + len(MarcadorInicio)
         fim = fonte.find(MarcadorFim, inicio)
         if  MarcadorFim == '' or fim == -1:
             return fonte[inicio:]
@@ -60,7 +69,7 @@ def extrair_campo_lista (string, split, lista_inicio_fim):
             dado = ''
             dado = extrair(campo, inicio, fim)
             dado = limpar(dado)
-            dado = limpar2(dado)
+            dado = limpar(dado)
             dado = remover_acentos(dado)
 
             elemento_lista.append([atributo, dado.upper()])
@@ -69,6 +78,500 @@ def extrair_campo_lista (string, split, lista_inicio_fim):
 
     # retorna a lista de elementos como resultado função
     return campo_lista
+
+def ajustar_nome(string):
+    string.strip()
+    
+    trocar1 =[['ASSOC ','ASSOCIACAO '],
+            ['GONGRESSO NACIONAL','CONGRESSO NACIONAL'],
+            ['REPUBICA','REPUBLICA'],
+            ['PROCURADOR GERAL','PROCURADOR-GERAL'],
+            ['REUBLICA','REPUBLICA'],
+            ['GONGRESSO','CONGRESSO'],
+            ['(','- '],
+            [')',''],
+            ['  ',' '],
+            ['MINISTRA','MINISTRO'],
+            ['PRO-BELEZA','PROBELEZA'],
+            ['VICE-GOV','V.GOV'],
+            ['VICE PRESIDENTE','VICE-PRESIDENTE'],
+            ['VICE-PRE','V.PRE'],
+            ['CORREGEDOR-GERAL','CORR.GERAL'],
+            ['CORREGEDORIA-GERAL','CORR.GERAL'],
+            ['CORREGEDORIAGERAL','CORR.GERAL'],
+            ['CORREGEDORIADA','CORR.GERAL DA'],
+            ['ARCO-IRIS','ARCOIRIS'],
+            ['TRT - ','TRT '],
+            ['REGIAO -','REGIAO'],
+            ['MATO-GROSSENSE','MATOGROSSENSE'],
+            ['TRT - ','TRT '],
+            
+            ['-',' - '],
+            ['  ',' '],
+            ['  ',' '],
+            [']',''],
+            
+            ['- ME',''],
+            ['S/A','S.A.'],
+            ['LTDA.','LTDA'],
+            ['PREFEITA','PREFEITO'],
+            ['PREFEITO DO MUNICIPIO','PREFEITO'],
+            ['PREFEITO D', 'PREF. D'],
+            ['PREFEITO MUNICIPAL D','PREF. D'],
+            ['PREFEITURA D','PREF. D'],
+            ['PREFEITURA MUNICIPAL','PREF.'],
+            ['MUNICIPIO D','MUN. D'],
+            ['MINISTRO D','MIN. D'],
+            ['MINISTERIO D','MIN. D'],
+            ['MESA DIRETIVA','MESA DIRETORA'],
+            ['MESA DIRETORA','M.D.'],
+            ['MESA DA','M.D. DA'],
+            ['SENADO FEDERAL','SENADO'],
+            ['JUIZ DE DIREITO','JUIZ'],
+            ['CORREGEDOR ','CORREGEDORIA'],
+            ['CORREGEDORIA ','CORREG. '],
+            ['CAMARA DE VEREADORES','CAMARA MUNICIPAL'],
+            ['CAMARA MUNICIPAL','C.MUN.'],
+            ['C.MUN. DO MUNICIPIO','C.MUN.'],
+            ['CAMPINHAS','CAMPINAS'],
+            ['DE TOCANTINS','DO TOCANTINS'],
+            ['LEGISLTATIVA','LEGISLATIVA'],
+            ['PRO TESTE','PROTESTE'],
+            ['E TV ABERT','E TELEVISAO ABERT'],
+            ['EMPRESARIOS DE RADIO','EMPRESAS DE RADIO'],
+            ['ADEPOL/BRASIL','ADEPOL'],
+            ['MAGISTRADOS DO BRASIL AMB','MAGISTRADOS BRASILEIROS AMB'],
+            ['ANOREG/BR','ANOREG'],
+            ['ANADEP A','ANADEP'],
+            ['DAS DEFENSORAS E DEFENSORES','DAS DEFENSORAS E DOS DEFENSORES'],
+            ['URBANOS NTU','URBANOS'],
+            ['D.G. DA ',''],
+            ['D.G. DO ',''],
+            ['DIRETOR DA ',''],
+            ['DIRETOR DO ',''],
+            
+            [',','']
+            
+            
+            
+            # ['/ALAGOAS', '/AC'],
+            # ['/ALAGOAS', '/AL'],
+            # ['/AMAPA', '/AP'],
+            # ['/AMAZONAS', '/AM'],
+            # ['/BAHIA', '/BA'],
+            # ['/CEARA', '/CE'],
+            # ['/DISTRITO FEDERAL', '/DF'],
+            # ['/ESPIRITO SANTO', '/ES'],
+            # ['/GOIAS', '/GO'],
+            # ['/MARANHAO', '/MA'],
+            # ['/MATO GROSSO DO SUL', '/MS'],
+            # ['/MATO GROSSO', '/MT'],
+            # ['/MINAS GERAIS', '/MG'],
+            # ['/PARAIBA', '/PB'],
+            # ['/PARANA', '/PR'],
+            # ['/PERNAMBUCO', '/PE'],
+            # ['/PIAUI', '/PI'],
+            # ['/RIO DE JANEIRO', '/RJ'],
+            # ['/RIO GRANDE DO NORTE', '/RN'],
+            # ['/RIO GRANDE DO SUL', '/RS'],
+            # ['/RONDONIA', '/RO'],
+            # ['/RORAIMA', '/RR'],
+            # ['/SANTA CATARINA', '/SC'],
+            # ['/SAO PAULO', '/SP'],
+            # ['/SERGIPE', '/SE'],
+            # ['/PARA', '/PA'],
+            # ['/TOCANTINS', '/TO'],
+            # ['/ACRE','/AC'],
+            # ['/RIO DE JANEIRO','/RJ']
+            ]
+    for item in trocar1:
+        string = string.replace(item[0],item[1])
+        
+        
+    if 'DEMOCRATAS' in string and 'DEM ' in string:
+        string = 'DEM/PFL'
+    if 'DEMOCRATAS -' in string:
+        string = 'DEM/PFL'
+    if 'DEMOCRATAS' == string:
+        string = 'DEM/PFL'
+    
+    
+    substituir = [
+              ['PROCURADOR - GERAL DA REPUBLICA','PGR'],
+              ['PROCURADOR GERAL DA REPUBLICA','PGR'],
+              ['PROCURADORA - GERAL DA REPUBLICA','PGR'],
+              ['PROCURADORIA - GERAL DA REPUBLICA','PGR'],
+              ['CONSELHO FEDERAL DA ORDEM DOS ADVOGADOS DO BRASIL','OAB'],
+              ['PARTIDO PROGRESSISTA','PP'],
+              ['PARTIDO COMUNISTA DO BRASIL','PC DO B'],
+              ['PARTIDO COMUNISTA BRASILEIRO','PCB'],
+              ['PARTIDO DA FRENTE LIBERAL','DEM/PFL'],
+              ['PARTIDO DA MOBILIZACAO NACIONAL','PMN'],
+              ['PARTIDO DA MULHER BRASILEIRA','PMB'],
+              ['REEDIFICACAO DA ORDEM NACIONAL','PRONA'],
+              ['PARTIDO DA REPUBLICA','PR'],
+              ['DEMOCRACIA BRASILEIRA','PSDB'],
+              ['PSDB','PSDB'],
+              ['DEMOCRATA CRISTAO','PDC'],
+              ['PARTIDO DEMOCRATICO TRABALHISTA','PDT'],
+              ['PARTIDO DO MOVIMENTO DEMOCRATICO','PMDB'],
+              ['TRABALHADORES DO BRASIL','PT DO B'],
+              ['PARTIDO TRABALHISTA DO BRASIL','PT DO B'],
+              ['PARTIDO DOS TRABALHADORES','PT'],
+              ['PARTIDO HUMANISTA DA SOLIDARIEDADE','PHS'],
+              ['PARTIDO LIBERAL','PL'],
+              ['PARTIDO POPULAR SOCIAL','PPS'],
+              ['PARTIDO PROGRESSISTA BRASILEIRO','PPB'],
+              ['PARTIDO PROGRESSISTA REFORMADOR','PPR'],
+              ['PARTIDO PROGRESSISTA','PP'],
+              ['RENOVADOR TRABALHISTA BRASILEIRO','PRTB'],
+              ['PARTIDO REPUBLICANO BRASILEIRO','PRB'],
+              ['REPUBLICANO DA ORDEM SOCIAL','PROS'],
+              ['PARTIDO REPUBLICANO PROGRESSISTA','PRP'],
+              ['PARTIDO SOCIAL CRISTAO','PSC'],
+              ['PARTIDO SOCIAL DEMOCRATA CRISTAO','PSDC'],
+              ['PARTIDO SOCIAL DEMOCRATICO','PSD'],
+              ['PARTIDO SOCIAL LIBERAL','PSL'],
+              ['PARTIDO SOCIAL TRABALHISTA','PST'],
+              ['SOCIALISMO E LIBERDADE','PSOL'],
+              ['PARTIDO SOCIALISTA BRASILEIRO','PSB'],
+              ['PARTIDO SOCIALISTA DO BRASIL','PSB'],
+              ['PARTIDO SOCIALISTA DOS TRABALHADORES UNIFICADO','PSTU'],
+              ['PARTIDO TRABALHISTA BRASILEIRO','PTB'],
+              ['PARTIDO TRABALHISTA CRISTAO','PTC'],
+              ['PARTIDO TRABALHISTA NACIONAL','PTN'],
+              ['PARTIDO TRABALHISTA RENOVADOR','PTR'],
+              ['PARTIDO VERDE','PV'],
+              ['PODEMOS','PODEMOS'],
+              ['CONS.NAC. DE JUSTICA','CNJ'],
+              ['CONGRESSO NACIONAL','CN'],
+              ['TRIBUNAL SUPERIOR ELEITORAL','TSE'],
+              ['SOLIDARIEDADE -','SOLIDARIEDADE'],
+              ['PARTIDO NOVO','PARTIDO NOVO'],
+              ['SUPREMO TRIBUNAL FEDERAL','STF'],
+              ['^',''],
+              ['TRIBUNAL SUPERIOR DO TRABALHO','TST'],
+              ['DIRETOR DA RECEITA FEDERAL','SECRETARIA DA RECEITA FEDERAL'],
+              ['DEPARTAMENTO DA RECEITA FEDERAL','SECRETARIA DA RECEITA FEDERAL'],
+              ['SINDIFISCO NACIONAL','SIND.NAC. AUDITORES FISCAIS DA RECEITA FEDERAL DO BRASIL SINDIFISCO NACIONAL'],
+              ['UNIAO GERAL DOS TRABALHADORES','UNIAO GERAL DOS TRABALHADORES UGT'],
+              ['UNIAO NACIONAL DAS INSTITUICOES DE AUTOGESTAO EM SAUDE','UNIAO NACIONAL DAS INSTITUICOES DE AUTOGESTAO EM SAUDE UNIDAS']
+                         
+              ]
+    
+    for item in substituir:
+        if item[0] in string:
+            string = item[1]
+    
+    if string.find('ASSOCIACAO') > 0 and string.find('-') < 20:
+        string = string.replace('-','')
+        string = string.replace('  ',' ')
+        string = string.replace('  ',' ')
+        string = string[string.find('ASSOCIACAO'):] + ' - ' + string[:string.find('ASSOCIACAO')]
+        
+    if string.find('UNIAO D') > 0 and string.find('-') < 20:
+        string = string.replace('-','')
+        string = string.replace('  ',' ')
+        string = string.replace('  ',' ')
+        string = string[string.find('UNIAO'):] + ' - ' + string[:string.find('UNIAO')]
+        
+    if string.find('CONFEDERACAO') > 0 and string.find('-') < 20:
+        string = string.replace('-','')
+        string = string.replace('  ',' ')
+        string = string.replace('  ',' ')
+        string = string[string.find('CONFEDERACAO'):] + ' - ' + string[:string.find('CONFEDERACAO')]
+        
+    if string.find('FEDERACAO') > 0 and string.find('-') < 20 and 'CONFEDERACAO' not in string:
+        string = string.replace('-','')
+        string = string.replace('  ',' ')
+        string = string.replace('  ',' ')
+        string = string[string.find('FEDERACAO'):] + ' - ' + string[:string.find('FEDERACAO')]
+        
+    if string.find('CONSELHO') > 0 and string.find('-') < 20:
+        string = string.replace('-','')
+        string = string.replace('  ',' ')
+        string = string.replace('  ',' ')
+        string = string[string.find('CONSELHO'):] + ' - ' + string[:string.find('CONSELHO')]
+        
+    if 'ESTADO DO ' in string[0:12]:
+        string.replace('ESTADO DO ','')
+    
+    if 'ESTADO DE ' in string[0:12]:
+        string.replace('ESTADO DE ','')
+        
+    if 'ESTADO DA ' in string[0:12]:
+        string.replace('ESTADO DA ','')
+        
+    # estados = [[' DO AC','/AC'],
+    #          [' DE AL','/AL'],
+    #          [' DO AP','/AP'],
+    #          [' DO AM','/AM'],
+    #          [' DA BA','/BA'],
+    #          [' DO CE','/CE'],
+    #          [' DO DF','/DF'],
+    #          [' DE GO','/GO'],
+    #          [' DO MA','/MA'],
+    #          [' DO MS','/MS'],
+    #          [' DO MT','/MT'],
+    #          [' DE MG','/MG'],
+    #          [' DA PB','/PB'],
+    #          [' DE PE','/PE'],
+    #          [' DO PI','/PI'],
+    #          [' DO RJ','/RJ'],
+    #          [' DO RN','/RN'],
+    #          [' DO RS','/RS'], 
+    #          [' DE RO','/RO'],
+    #          [' DE RR','/RR'],
+    #          [' DE SC','/SC'],
+    #          [' DE SP','/SP'],
+    #          [' DO PA','/PA'],
+    #          [' DE TO','/TO'],
+    #          [' DO TO','/TO'],
+    #          [' DO ES','/ES']]
+    
+    # for item in estados:
+    #     final = string[-6:0]
+    #     if  final == item[0]:
+    #         string = string.replace(item[0],item[1])
+    
+    # estados2 = [[' DO AC','/AC'],
+    #          [' AL','/AL'],
+    #          [' AP','/AP'],
+    #          [' AM','/AM'],
+    #          [' BA','/BA'],
+    #          [' CE','/CE'],
+    #          [' DF','/DF'],
+    #          [' GO','/GO'],
+    #          [' MA','/MA'],
+    #          [' MS','/MS'],
+    #          [' MT','/MT'],
+    #          [' MG','/MG'],
+    #          [' PB','/PB'],
+    #          [' PE','/PE'],
+    #          [' PI','/PI'],
+    #          [' RJ','/RJ'],
+    #          [' RN','/RN'],
+    #          [' RS','/RS'], 
+    #          [' RO','/RO'],
+    #          [' RR','/RR'],
+    #          [' SC','/SC'],
+    #          [' SP','/SP'],
+    #          [' PA','/PA'],
+    #          [' TO','/TO'],
+    #          [' TO','/TO'],
+    #          [' ES','/ES']]
+    
+    # for item in estados2:
+    #     final = string[-6:0]
+    #     if  final == item[0]:
+    #         string = string.replace(item[0],item[1])
+            
+    string = estado_nome_completo(string)
+
+    trocar = [['ASSEMBLEIA LEGISLATIVA DO ESTADO DE ', 'AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DO ESTADO DA ', 'AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DO ESTADO DO ', 'AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DO','AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DE','AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DA','AL/'],
+             ['ASSEMBLEIA LEGISLATIVA','AL/'],
+             ['CONSELHO FEDERAL', 'CONS.FED'],
+             ['CONSELHO', 'CONS.'],
+             ['TRIBUNAL REGIONAL ELEITORAL','TRE'],
+             ['MINISTERIO PUBLICO','MP'],
+             ['ASSOCIACAO NACIONAL', 'ASSOC.NAC.'],
+             ['ASSOCIACAO', 'ASSOC.'],
+             ['CONFEDERACAO NACIONAL', 'CONF.NAC.'],
+             ['CONFEDERACAO BRASILEIRA', 'CONF.BRAS.'],
+             ['CONFEDERACAO', 'CONF.'],
+             ['DO ESTADO ',''],
+             ['GOVERNADORA','GOVERNADOR'],
+             ['GOVERNADOR DE ','GOV./ '],
+             ['GOVERNADOR DO ','GOV./ '],
+             ['GOVERNADOR DA ','GOV./ '],
+             ['SECRETARIO','SECRETARIA'],
+             ['(0','('],
+             ['(0','('],
+             ['TRIBUNAL REGIONAL DO TRABALHO','TRT'],
+             ['TRIBUNAL REGIONAL FEDERAL','TRF'],
+             ['TRIBUNAL DE JUSTICA','TJ'],
+             ['PROCURADORA','PROCURADOR'],
+             ['PROCURADOR-GERAL DE ','PG/'],
+             ['PROCURADOR-GERAL DO ','PG/'],
+             ['PROCURADOR-GERAL DA ','PG/'],
+             ['DF/DF','/DF'],
+             ['PRESIDENTA','PRESIDENTE'],
+             ['SANTANA CATARINA','SANTA CATARINA'],
+             ['MINAS DE GERAIS','MINAS GERAIS'],
+             ['A REGIAO','REG.'],
+             ['A. REGIAO','REG.'],
+             ['TRT DA','TRT'],
+             ['TRF DA','TRT'],
+             ['SECRETARIA DE FAZENDA','SEC.FAZ.'],
+             ['SECRETARIA DA FAZENDA','SEC.FAZ.'],
+             ['PRESIDENTE DO','PRES.'],
+             ['PRESIDENTE DA','PRES.'],
+             ['PRESIDENTE ','PRES.'],
+             ['TRIBUNAL DE CONTAS DO','TC/'],
+             ['TRIBUNAL DE CONTAS DE','TC/'],
+             ['TRIBUNAL DE CONTAS DA','TC/'],
+             ['TRIBUNAL DE CONTAS','TC'],
+             ['/ ','/'],
+             [' /','/'],
+             ['//','/'],
+             ['DEFENSORIA PUBLICA','DP'],
+             ['DEFENSOR PUBLICO GERAL', 'DP.GERAL'],
+             ['DEFENSOR PUBLICO-GERAL', 'DP.GERAL'],
+             ['ESTADO/',''],
+             ['ESTADO DE',''],
+             ['JUIZ DO TRABALHO','JUIZ'],
+             ['E OUTROS',''],
+             ['E OUTRO',''],
+             ['E OUTRA',''],
+             ['E OUTRAS',''],
+             ['MINISTRO DE ESTADO','MINISTRO'],
+             ['SECRETARIA DE ESTADO','SECRETARIA'],
+             ['SINDICADO DOS EMPREGADOS','SIND.EMPREG.'],
+             ['DE MATO GROSSO DO SUL','DO MATO GROSSO DO SUL'],
+             ['CONS. DA MAGISTRATURA','CONS.MAGIST.'],
+             ['CONS. ESTADUAL','CONS.ESTAD.'],
+             ['CONS. NACIONAL','CONS.NAC.'],
+             ['CONS. REGIONAL','CONS.REG.'],
+             ['CONS. SUPERIOR','CONS.SUP.'],
+             ['CORREGEDORIAGERAL','CORR.GERAL'],
+             ['CORREG. GERAL','CORR.GERAL'],
+             ['DEFENSOR PUBLICO - GERAL','DP.GERAL'],
+             ['DIRETOR - GERAL','D.G.'],
+             ['FEDERACAO BRASILEIRA','FED.BRAS.'],
+             ['FEDERACAO DAS ASSOCIACOES','FED.ASSOC.'],
+             ['FEDERACAO NACIONAL DOS SERVIDORES','FED.NAC.SERV.'],
+             ['FEDERACAO NACIONAL DOS TRABALHADORES','FED.NAC.TRAB.'],
+             ['FEDERACAO NACIONAL','FED.NAC.'],
+             ['INSTITUTO BRASILEIRO','INST.BRAS.'],
+             ['ORGAO ESPECIAL DO',''],
+             ['SINDICATO NACIONAL DE','SIND.NAC.'],
+             ['SINDICATO NACIONAL DOS','SIND.NAC.'],
+             ['SINDICATO NACIONAL DAS','SIND.NAC.'],
+             ['SINDICATO NACIONAL','SIND.NAC.'],
+             ['MIN. DE ESTADO','MIN.'],
+             ['ORDEM DOS ADVOGADOS DO BRASIL','OAB'],
+             ['PROCURADOR - GERAL','PROC.GERAL'],
+             ['PROCURADOR GERAL DA REPUBLICA','PGR'],
+             ['PROCURADOR GERAL','PROC.GERAL'],
+             ['PROCURADORIA GERAL','PROC.GERAL'],
+             ['SUPERIOR TJ','STJ'],
+             [' AMPCON',''],
+             ['C.MUN. DO MUN.','C.MUN.'],
+             ['DO UNIAO','DA UNIAO'],
+             ['FECOMERCIO PR',''],
+             [' 0AB',''],
+             ['PRES. BRASIL','PRES. REPUBLICA'],
+             ['GOVERNO DE',''],
+             ['GOVERNO DO',''],
+             ['PRES. REPUBLICA','PRESIDENTE DA REPUBLICA'],
+             ['PRESIDENCIA DA REPUBLICA','PRESIDENTE DA REPUBLICA'],
+             ['EM EXERCICIO',''],
+             ['PRES. ',''],
+             ['PATRIOTA PATRI','PARTIDO PATRIOTA'],
+             ['-',''],
+             ['  ',' '],
+             ['  ',' ']
+             ]
+    
+    for item in trocar:
+        string = string.replace(item[0],item[1])
+    
+    if string[:2] == 'A ':
+        string = string[2:]
+        
+    if string[:8] == 'ESTADO D':
+        string = string[10:]
+        
+    string.strip(',')
+    string.strip()
+    
+    return string
+
+def extrair_partes(string):
+    string = remover_acentos(string)
+    
+    partes = string.split('<div class="processo-partes lista-dados">')
+    
+    n=0
+    lista_partes = []
+    
+    for parte in partes[1:]:
+        n = n+1
+        ordem = n
+        tipo = extrair(parte, 'detalhe-parte">', '</div>').upper()
+        tipo = tipo.replace('REQTE.(S)','REQTE')
+        tipo = tipo.replace('INTDO.(A/S)','INTDO')
+        tipo = tipo.replace('ADV.(A/S)','ADV')
+        tipo = tipo.replace('AM. CURIAE.','AMICUS')
+        nome = extrair(parte, '"nome-parte">', '&nbsp').upper()
+        nome = ajustar_nome(nome)
+        if tipo == 'ADV':
+            if "(" in nome:
+                nome = extrair(nome, '', '(')
+        if tipo == 'RQTE':
+            lista_partes.append([ordem, tipo, nome])
+        
+    return lista_partes
+
+def listar_partes(string, processo):
+    string = remover_acentos(string)
+    
+    partes = string.split('<div class="processo-partes lista-dados">')
+    
+    lista_partes = []
+    
+    for parte in partes[1:]:
+        tipo = extrair(parte, 'detalhe-parte">', '</div>').upper()
+        tipo = tipo.replace('REQTE.(S)','REQTE')
+        tipo = tipo.replace('INTDO.(A/S)','INTDO')
+        tipo = tipo.replace('REQDO.(A/S)','INTDO')
+        tipo = tipo.replace('ADV.(A/S)','ADV')
+        tipo = tipo.replace('AM. CURIAE.','AMICUS')
+        tipo = tipo.replace('PROC.(A/S)(ES)','ADV/PUB')
+        nome = extrair(parte, '"nome-parte">', '&nbsp').upper()
+        nome = ajustar_nome(nome)
+        if tipo == 'ADV' or tipo == 'ADV/PUB':
+            if "(" in nome:
+                nome = extrair(nome, '', '(')
+        nome = nome.strip()
+        nome = nome.replace('  ',' ')
+        lista_partes.append([nome, tipo, processo])
+        
+    return lista_partes
+
+
+def extrair_andamentos(string):
+    string = remover_acentos(string)
+    string = limpar(limpar(string))
+    partes = string.split('<div class="andamento-item">')
+    
+    n=0
+    lista_andamentos = []
+    
+    for parte in partes[1:]:
+        n = n+1
+        ordem = n
+        data = extrair(parte, '<div class="andamento-data ">','</div>').upper()
+        nome = extrair(parte, '<h5 class="andamento-nome ">','</h5>').upper()
+        complemento = extrair(parte, '<div class="col-md-9 p-0">','</div>').upper()
+        if complemento == ' ' or complemento == '':
+            complemento = 'NA'
+        docs = extrair(parte, '"col-md-4 andamento-docs">','</div>')
+        if docs == ' ' or docs == '':
+            docs = 'NA'
+        if 'href=' in docs:
+            docs = extrair(docs,'href="', '"')
+        julgador = extrair(parte, 'julgador badge bg-info ">','</span>').upper()
+        #print ([ordem, data, nome, complemento, docs, julgador])
+        
+        lista_andamentos.append([ordem, data, nome, complemento, docs, julgador])
+        
+    return lista_andamentos
 
 
 def solicitar_dados_Juris (classe, numero):
@@ -95,9 +598,14 @@ def solicitar_dados_CC (classe, numero):
            + numero)
     print (url)
     # Módulo básico de extração
-    string = requests.get(url).text
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    string = requests.get(url, headers = user_agent).text
     inicio = string.find('processo/verProcessoAndamento.asp?')
     return (url + ">>>>> \n" + string[inicio:])
+
+
+url = 'http://www.stf.jus.br/portal/pauta/listarCalendario.asp?data=03/03/2021'
+html = requests.head
 
 def solicitar_dados_mono (classe, numero):
     url = ('http://stf.jus.br/portal/jurisprudencia/listarJurisprudencia.asp?s1=%28'
@@ -125,14 +633,21 @@ def solicitar_dados_AP (classe, numero):
                         '<div class="p-l-0" id="resumo-partes">')
     return (url + ">>>>> \n" + htmlfonte)
 
-def solicitar_utf8 (dominio, path, query):
-    html = requests.get(dominio+path+query)
+def solicitar_dados (dominio, path, incidente):
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    html = requests.get(dominio+path+incidente, headers = user_agent).text
     html.encoding = 'utf-8'
     html = html.text
     return html
 
+def get (url):
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    html = requests.get(url, headers = user_agent)
+    html.encoding = 'utf-8'
+    html = html.text
+    return html
 
-def carregar_arquivo (classe, numero, path):
+def carregar_arquivo_composto (classe, numero, path):
     nomedoarquivo = (path + classe + str(0)*(4-len(numero)) + numero + '.html')
     arquivoaberto = (classe +  str(0)*(4-len(numero)) + numero + '.html')
     print (nomedoarquivo)
@@ -141,9 +656,29 @@ def carregar_arquivo (classe, numero, path):
     arquivo.close()
     return arquivoaberto, html
 
-def carregar_arquivo_nome (nome, path):
-    nomedoarquivo = (nome)
-    arquivo = open(path + nomedoarquivo, 'r', encoding='utf-8')
+def gerador_de_lista (path, classe, numeroinicial, numerofinal):
+    lista = []
+    for n in range (int(numerofinal) - int(numeroinicial) + 1):
+        numero = numerofinal-n
+        nomedoarquivo = (path + classe + str(0)*(4-len(str(numero))) + str(numero) + '.html')
+        if nomedoarquivo in os.listdir(path):
+            lista.append(nomedoarquivo)
+    return lista
+
+def gerar_lista (classe, numeroinicial, numerofinal, path):
+    lista = []
+    for item in range(int(numerofinal) - int(numeroinicial) +1):
+        nomedoarquivo = (path + classe + ('0')*(4-len(str(item))) + str(item) + '.html')
+        print (nomedoarquivo)
+        lista.append(nomedoarquivo)
+    return (lista)
+
+def gerar_nome_arquivo (classe, numero, path):
+    nomedoarquivo = (path + classe + str(0)*(4-len(numero)) + numero + '.html')
+    return (nomedoarquivo)
+
+def carregar_arquivo (nomedoarquivo):
+    arquivo = open(nomedoarquivo, 'r', encoding='utf-8')
     html = arquivo.read()
     arquivo.close()
     return html
@@ -166,17 +701,108 @@ def extrair_da_lista (relacao_de_arquivos, path):
     arquivo.close()
     return nomedoarquivo, html
 
+def limpa_estado(string):
+    estados = [['ALAGOAS', '/AC'],
+     ['ALAGOAS', '/AL'],
+     ['AMAPA', '/AP'],
+     ['AMAZONAS', '/AM'],
+     ['BAHIA', '/BA'],
+     ['CEARA', '/CE'],
+     ['DISTRITO FEDERAL', '/DF'],
+     ['ESPIRITO SANTO', '/ES'],
+     ['GOIAS', '/GO'],
+     ['MARANHAO', '/MA'],
+     ['MATO GROSSO DO SUL', '/MS'],
+     ['MATO GROSSO', '/MT'],
+     ['MINAS GERAIS', '/MG'],
+     ['PARAIBA', '/PB'],
+     ['PARANA', '/PR'],
+     ['PERNAMBUCO', '/PE'],
+     ['PIAUI', '/PI'],
+     ['RIO DE JANEIRO', '/RJ'],
+     ['RIO GRANDE DO NORTE', '/RN'],
+     ['RIO GRANDE DO SUL', '/RS'],
+     ['RONDONIA', '/RO'],
+     ['RORAIMA', '/RR'],
+     ['SANTA CATARINA', '/SC'],
+     ['SAO PAULO', '/SP'],
+     ['SERGIPE', '/SE'],
+     ['PARA', '/PA'],
+     ['TOCANTINS', '/TO']
+     ]
+    
+    for item in estados:
+        string = string.replace(item[0],item[1])
+    return string
+
+def estado_nome_completo(string):
+    estados = [['ALAGOAS', '/AC'],
+     ['ALAGOAS', '/AL'],
+     ['AMAPA', '/AP'],
+     ['AMAZONAS', '/AM'],
+     ['BAHIA', '/BA'],
+     ['CEARA', '/CE'],
+     ['DISTRITO FEDERAL', '/DF'],
+     ['ESPIRITO SANTO', '/ES'],
+     ['GOIAS', '/GO'],
+     ['MARANHAO', '/MA'],
+     ['MATO GROSSO DO SUL', '/MS'],
+     ['MATO GROSSO', '/MT'],
+     ['MINAS GERAIS', '/MG'],
+     ['PARAIBA', '/PB'],
+     ['PARANA', '/PR'],
+     ['PERNAMBUCO', '/PE'],
+     ['PIAUI', '/PI'],
+     ['RIO DE JANEIRO', '/RJ'],
+     ['RIO GRANDE DO NORTE', '/RN'],
+     ['RIO GRANDE DO SUL', '/RS'],
+     ['RONDONIA', '/RO'],
+     ['RORAIMA', '/RR'],
+     ['SANTA CATARINA', '/SC'],
+     ['SAO PAULO', '/SP'],
+     ['SERGIPE', '/SE'],
+     ['PARA', '/PA'],
+     ['TOCANTINS', '/TO']
+     ]
+    
+    for item in estados:
+        string = string.replace(item[1],item[0])
+    return string
+def siglas():
+    return ['AC',
+ 'AL',
+ 'AP',
+ 'AM',
+ 'BA',
+ 'CE',
+ 'DF',
+ 'ES',
+ 'GO',
+ 'MA',
+ 'MS',
+ 'MT',
+ 'MG',
+ 'PB',
+ 'PR',
+ 'PE',
+ 'PI',
+ 'RJ',
+ 'RN',
+ 'RS',
+ 'RO',
+ 'RR',
+ 'SC',
+ 'SP',
+ 'SE',
+ 'PA',
+ 'TO']      
+ 
 #   funções de limpeza
-def limpar(fonte): # útil para textos em LN. retira parágrafos iniciais e converte quebras de linha em '//'
+def limpar(fonte):
+    fonte = fonte.replace('\n',' ')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.replace('  ',' ')
     fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip('\n')
-    fonte = fonte.lstrip('\n')
-    fonte = fonte.lstrip('\n')
-    fonte = fonte.lstrip('\n')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip('\n')
-    fonte = fonte.lstrip('\n')
-    fonte = fonte.lstrip('\n')
     fonte = fonte.lstrip(' ')
     fonte = fonte.lstrip(' ')
     fonte = fonte.lstrip(' ')
@@ -184,24 +810,44 @@ def limpar(fonte): # útil para textos em LN. retira parágrafos iniciais e conv
     fonte = fonte.lstrip(' ')
     fonte = fonte.lstrip('"')
     fonte = fonte.lstrip('>')
-    fonte = fonte.replace('\n','//')
     fonte = fonte.replace('  ',' ')
     fonte = fonte.replace('\t', '')
     fonte = fonte.replace('/#','')
+    fonte = fonte.strip(' ')
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip('-')
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip(' ')
     return fonte
 
-def limpar2(fonte): #útil para campos com início com espaços. exclui quebras de linha.
-    fonte = fonte.replace('\n','')
-    fonte = fonte.replace('/#','')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip('-')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip('\t')
-    return fonte
+def limpar_numero(numero):
+    numero = numero.replace('<FONT COLOR=RED><B>','')
+    numero = numero.replace('</B></FONT>','')
+    numero = "0"*(4-len(numero))+numero
+    return numero
 
+def limpar_classe(string):
+    string = limpar(string)
+    string = string.replace('ACAO DIRETA DE INCONSTITUCIONALIDADE','ADI')
+    string = string.replace('ACAO DIRETA DE INCONSTITUCI0NALIDADE','ADI')
+    string = string.replace('7CAO DIRETA DE INCONSTITUCIONALIDADE','ADI')
+    string = string.replace('01CAO DIRETA DE INCONSTITUCIONALIDADE','ADI')
+    string = string.replace('CAO DIRETA DE INCONSTITUCIONALIDADE','ADI')
+    string = string.replace('PACAO DIRETA DE INCONSTITUCIONALIDADE','ADI')
+    string = string.replace('sACAO DIRETA DE INCONSTITUCIONALIDADE','ADI')
+    string = string.replace('ARGUICAO DE DESCUMPRIMENTO DE PRECEITO FUNDAMENTAL','ADPF')
+    
+            
+def limpar_cln(string):
+    string = string.upper()
+    string = remover_acentos(string)
+    string = string.replace ('( MED','(MED')
+    string = string.replace ('E(MED','E (MED')
+    string = string.replace ('(LIMINAR)','(MED. LIMINAR)')
+    string = string.replace ('E MED.','E (MED')
+    string = string.replace ('CAUTELAR','LIMINAR')
+    
 def limpar_decisao (string):
     string = string.replace('\n','')
     string = string.replace('\t','')
@@ -211,13 +857,33 @@ def limpar_decisao (string):
     string = remover_acentos(string)
     return string
 
-def write_csv_header (nomedoarquivo,campos,variavel0):
-    if variavel0 == 0:
-        arquivoaberto = open(nomedoarquivo, mode='w',
+def limpar_arquivo(nomedoarquivo):
+    arquivoaberto =     open(nomedoarquivo, mode='w',
                              encoding="utf-8", newline='')
-        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
-        arquivoaberto_csv.writerow(campos.split(','))
+    arquivoaberto.close()
+
+def write_csv_header (nomedoarquivo, string_campos):
+    lista_de_campos = string_campos.split(',')
+    if nomedoarquivo in os.listdir():
+        arquivoaberto = open(nomedoarquivo, mode='r+',
+                                 encoding="utf-8", newline='')
+        html = arquivoaberto.read()
         arquivoaberto.close()
+
+        
+        if lista_de_campos[0] not in html[:100]:
+            arquivoaberto = open(nomedoarquivo, mode='w',
+                                 encoding="utf-8", newline='')
+            arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
+            arquivoaberto_csv.writerow(lista_de_campos)
+            arquivoaberto.close()
+    else:
+            arquivoaberto = open(nomedoarquivo, mode='w',
+                                 encoding="utf-8", newline='')
+            arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
+            arquivoaberto_csv.writerow(lista_de_campos)
+            arquivoaberto.close()
+
 
 
 def esperar (segundos, ciclos, variavel0):
@@ -239,15 +905,16 @@ def write_csv_lines (nomedoarquivo, dados):
         arquivoaberto = open(nomedoarquivo, mode='a+',
                              encoding="utf-8", newline='')
         arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
-        for item in range(len(dados)):
-            arquivoaberto_csv.writerow(dados.pop(0))
+        for item in dados:
+            arquivoaberto_csv.writerow(item)
         arquivoaberto.close()
 
 def extrai_acordaos_da_string (arquivo_a_extrair, path):  # usar duas contra-barras depois do nome
 
     if arquivo_a_extrair in os.listdir(path):
+        nome_do_arquivo = str(path+arquivo_a_extrair)
 
-        acordaos = carregar_arquivo_nome (arquivo_a_extrair, path)
+        acordaos = carregar_arquivo (nome_do_arquivo)
         # print (arquivo_a_extrair)
 
         n_acordaos = extrair(acordaos,'Documentos encontrados: ','</td>')
@@ -430,8 +1097,10 @@ def extrai_acordaos_da_string (arquivo_a_extrair, path):  # usar duas contra-bar
 def extrai_mono_da_string (arquivo_a_extrair, path):  # usar duas contra-barras depois do nome
 
         if arquivo_a_extrair in os.listdir(path):
+            
+            nome_do_arquivo = str(path+arquivo_a_extrair)
 
-            monocraticas = carregar_arquivo_nome (arquivo_a_extrair , path)
+            monocraticas = carregar_arquivo (nome_do_arquivo)
             # print (arquivo_a_extrair)
 
             # n_monocraticas = extrair(monocraticas,'Documentos encontrados: ','</td>')
@@ -525,7 +1194,7 @@ def extrai_mono_da_string (arquivo_a_extrair, path):  # usar duas contra-barras 
                     decisao_juris = extrair (monocraticas, '''Decisão</strong></p>''', '</pre>')
                     if '<pre>' in decisao_juris:
                         decisao_juris = decisao_juris.split('<pre>')[1]
-                    decisao_juris = limpar2(decisao_juris)
+                    decisao_juris = limpar(decisao_juris)
                     decisao_juris = decisao_juris.replace('\n\n','\n')
 
 
