@@ -13,7 +13,57 @@ def csv_to_list(file):
         csv_reader = csv.reader(csv_file, delimiter=',')
         for row in csv_reader:
             lista.append(row)
-    return (lista[1:])
+            
+        n_campos = len(lista[0])
+        
+        for campo in range (n_campos):
+            tipo = 'string:'
+            integral = 0
+            amostra = len(lista)//10
+            for n in range (amostra):
+            
+                objeto = lista[n][campo]
+                
+                if objeto[0] == '[':
+                    tipo = "lista:"
+                    if objeto[1] == '[':
+                        tipo = 'lista2:'
+                    
+                try:
+                        int(objeto)
+                except ValueError:
+                        integral = integral + 1
+                    
+            if integral == 1:
+                tipo = 'int:'
+                
+            lista[0][campo] = tipo + str(lista[0][campo])
+            print (f'Campo {campo+1} = {tipo}')
+             
+        for campo in range (n_campos):
+            for n in range (len(lista)):
+                objeto =  lista[n][campo]
+                if 'int:' in lista[0][campo] and n>0:
+                    objeto = int(objeto)
+                if 'lista:' in lista[0][campo] and n>0:
+                    objeto = objeto[1:-1]
+                    objeto = objeto.split[',']
+                if 'lista2:' in lista[0][campo] and n>0:
+                    objeto = objeto[1:-1]
+                    objeto = objeto[1:-1]
+                    
+                    objeto = objeto.split('], [')
+                    lista_itens = []
+                    
+                    for n in range (len(objeto)):
+                        item = objeto[n]
+                        item = item[1:-1]
+                        item = item.split("', '")
+                        lista_itens.append(item)
+                        
+                    lista[n][campo] = lista_itens
+            
+    return (lista)
 
 def remover_acentos(txt):
     return normalize('NFKD', txt).encode('ASCII', 'ignore').decode('utf-8')
@@ -863,6 +913,7 @@ def limpar_arquivo(nomedoarquivo):
     arquivoaberto.close()
 
 def write_csv_header (nomedoarquivo, string_campos):
+    string_campos = string_campos.replace('\n','')
     lista_de_campos = string_campos.split(',')
     if nomedoarquivo in os.listdir():
         arquivoaberto = open(nomedoarquivo, mode='r+',
@@ -896,7 +947,7 @@ def write_csv_line (nomedoarquivo,dados):
     if dados != []:
         arquivoaberto = open(nomedoarquivo, mode='a+',
                              encoding="utf-8", newline='')
-        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
+        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',', quotechar = '"')
         arquivoaberto_csv.writerow(dados)
         arquivoaberto.close()
 
@@ -904,9 +955,8 @@ def write_csv_lines (nomedoarquivo, dados):
     if dados != []:
         arquivoaberto = open(nomedoarquivo, mode='a+',
                              encoding="utf-8", newline='')
-        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
-        for item in dados:
-            arquivoaberto_csv.writerow(item)
+        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',', quotechar = '"')
+        arquivoaberto_csv.writerows(dados)
         arquivoaberto.close()
 
 def extrai_acordaos_da_string (arquivo_a_extrair, path):  # usar duas contra-barras depois do nome
@@ -1244,3 +1294,20 @@ def extrai_mono_da_string (arquivo_a_extrair, path):  # usar duas contra-barras 
                     monocraticas_outros)
         else:
             return ([], 'NA', [], [], [], [], [], [], [],[], [])
+        
+def substituir_data (string):
+    string = string.lower()
+    string = string.replace('jan','01')
+    string = string.replace('fev','02')
+    string = string.replace('mar','03')
+    string = string.replace('abr','04')
+    string = string.replace('mai','05')
+    string = string.replace('jun','06')
+    string = string.replace('jul','07')
+    string = string.replace('ago','08')
+    string = string.replace('set','09')
+    string = string.replace('out','10')
+    string = string.replace('nov','11')
+    string = string.replace('dez','11')
+    
+    return(string)
