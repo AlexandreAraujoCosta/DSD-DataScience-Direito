@@ -4,16 +4,20 @@ import time
 import os
 from unicodedata import normalize
 
+
 def position1(list):
     return(list[1])
 
+
 def csv_to_list(file):
+    # csv.field_size_limit(16777216)
+
     lista = []
     with open(file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for row in csv_reader:
             lista.append(row)
-            
+
         n_campos = len(lista[0])
         
         for campo in range (n_campos):
@@ -41,27 +45,17 @@ def csv_to_list(file):
             print (f'Campo {campo+1} = {tipo}')
              
         for campo in range (n_campos):
-            for n in range (len(lista)):
-                objeto =  lista[n][campo]
-                if 'int:' in lista[0][campo] and n>0:
-                    objeto = int(objeto)
-                if 'lista:' in lista[0][campo] and n>0:
-                    objeto = objeto[1:-1]
-                    objeto = objeto.split[',']
-                if 'lista2:' in lista[0][campo] and n>0:
-                    objeto = objeto[1:-1]
-                    objeto = objeto[1:-1]
+            for linha in lista[1:]:
+                if 'int:' in lista[0][campo]:
+                    linha[campo] = int(linha[campo])
+                if 'lista:' in lista[0][campo]:
+                    linha[campo] = linha[campo][1:-1]
+                    linha[campo] = linha[campo][',']
+                if 'lista2:' in lista[0][campo]:
+                    linha[campo] = linha[campo][2:-2]
                     
-                    objeto = objeto.split('], [')
-                    lista_itens = []
+                    linha[campo] = linha[campo].split('], [')
                     
-                    for n in range (len(objeto)):
-                        item = objeto[n]
-                        item = item[1:-1]
-                        item = item.split("', '")
-                        lista_itens.append(item)
-                        
-                    lista[n][campo] = lista_itens
             
     return (lista)
 
