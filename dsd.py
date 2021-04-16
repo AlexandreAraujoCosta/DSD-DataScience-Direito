@@ -10,7 +10,7 @@ def position1(list):
 
 
 def csv_to_list(file):
-    # csv.field_size_limit(16777216)
+    csv.field_size_limit(16777216)
 
     lista = []
     with open(file) as csv_file:
@@ -56,6 +56,12 @@ def csv_to_list(file):
                     
                     linha[campo] = linha[campo].split('], [')
                     
+                    for n in range (len(linha[campo])):
+                        linha[campo][n] = linha[campo][n].replace("'",'')
+                        linha[campo][n] = linha[campo][n].replace(", ",',')
+                        linha[campo][n] = linha[campo][n].split(',')
+                    
+                  
             
     return (lista)
 
