@@ -8,12 +8,26 @@ from unicodedata import normalize
 def position1(list):
     return(list[1])
 
+def csv_to_list_raw (file):
+    csv.field_size_limit(16777216)
+
+    lista = []
+    with open(file, encoding='utf-8') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            lista.append(row)
+
+                         
+                  
+            
+    return (lista)
+
 
 def csv_to_list(file):
     csv.field_size_limit(16777216)
 
     lista = []
-    with open(file) as csv_file:
+    with open(file, encoding='utf-8') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for row in csv_reader:
             lista.append(row)
@@ -50,7 +64,7 @@ def csv_to_list(file):
                     linha[campo] = int(linha[campo])
                 if 'lista:' in lista[0][campo]:
                     linha[campo] = linha[campo][1:-1]
-                    linha[campo] = linha[campo][',']
+                    # linha[campo] = linha[campo][',']
                 if 'lista2:' in lista[0][campo]:
                     linha[campo] = linha[campo][2:-2]
                     
@@ -623,17 +637,11 @@ def extrair_andamentos(string):
         
     return lista_andamentos
 
-
 def solicitar_dados_Juris (classe, numero):
-    url = ('http://stf.jus.br/portal/jurisprudencia/listarJurisprudencia.asp?s1=%28'
+    url = ('http://portal.stf.jus.br/processos/listarProcessos.asp?classe='
            + classe
-           +'%24%2ESCLA%2E+E+'
-           + numero
-           + '%2ENUME%2E%29+OU+%28'
-           + classe +
-           ' %2EACMS%2E+ADJ2+'
-           + numero
-           + '%2EACMS%2E%29&base=baseAcordaos')
+           +'&numeroProcesso='
+           + numero)
 
     print (url)
     # Módulo básico de extração
@@ -675,7 +683,10 @@ def solicitar_dados_AP (classe, numero):
            + classe
            + '&numeroProcesso='
            + numero)
-    string = requests.get(url)
+    print ('url: ' + url)
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    string = requests.get(url, headers = user_agent)
+    
     string.encoding = 'utf-8'
     htmlfonte = string.text
     htmlfonte = extrair(htmlfonte,
@@ -683,9 +694,9 @@ def solicitar_dados_AP (classe, numero):
                         '<div class="p-l-0" id="resumo-partes">')
     return (url + ">>>>> \n" + htmlfonte)
 
-def solicitar_dados (dominio, path, incidente):
+def solicitar_dados (dominio, path, querry):
     user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
-    html = requests.get(dominio+path+incidente, headers = user_agent)
+    html = requests.get(dominio+path+querry, headers = user_agent)
     html.encoding = 'utf-8'
     html = html.text
     return html
@@ -694,6 +705,13 @@ def get (url):
     user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
     html = requests.get(url, headers = user_agent)
     # html.encoding = 'utf-8'
+    html = html.text
+    return html
+
+def get_utf8 (url):
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    html = requests.get(url, headers = user_agent)
+    html.encoding = 'utf-8'
     html = html.text
     return html
 
@@ -734,10 +752,11 @@ def carregar_arquivo (nomedoarquivo):
     return html
 
 def gravar_dados_no_arquivo (classe, numero, path, dados):
-    nomedoarquivo = (path + classe + str(0)*(4-len(numero)) + numero + '.html')
+    nomedoarquivo = (path + classe + str(0)*(4-len(numero)) + numero + '.txt')
     arquivo = open(nomedoarquivo, 'w', encoding='utf-8')
     arquivo.write(dados)
     arquivo.close
+    
 
 def gravar_dados_no_arquivo_nome (nomedoarquivo, dados):
     arquivo = open(nomedoarquivo, 'w', encoding='utf-8')
