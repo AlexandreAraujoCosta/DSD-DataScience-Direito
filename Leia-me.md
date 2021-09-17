@@ -15,6 +15,6 @@ Também é simples adaptar o programa para buscar os dados relativos a uma lista
 A operação consiste em requisitar os dados do STF (na base de Acompanhamento Processual e na base específica de Controle Concentrado) e gravar os dados em arquivos específicos, em um diretório determinado no programa (para alterá-lo, modifique o path).
 Como o gargalo na extração de dados do STF se dá na capacidade de interação do seu computador com o servidor do Tribunal, que tende a cortar a comunicação após algumas centenas de consultas, a estratégia adotada é gravar todos os dados relevantes nos arquivos, para depois organizar esses dados, em um progrma que roda sobre os dados gravados.
 
-## Programa organizador dos dados: STF_Organizador.py
+## 3: Programa organizador dos dados: STF_Organizador.py
 Este programa parte dos dados gerados pelo STF_Extrator.py e organiza essas informações em tabelas no formato CSV. De fato, os arquivos são gravados como TXT, pois isso facilita a sua incorporação posterior ao Excel, que é o programa tipicamente usado para explorar inicialmente esses dados.
 
