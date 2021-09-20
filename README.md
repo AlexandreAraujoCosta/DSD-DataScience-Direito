@@ -18,6 +18,8 @@ Como o gargalo na extração de dados do STF se dá na capacidade de interação
 ## 3. Resultados da aplicação do extrator
 Os arquivos .rar contém os dados extraídos por meio do STF_Extrator.py, em extração realizada entre 18 e 19 de setembro de 2021.
 O conjunto dos dados extraídos somaria um arquivo .rar de 93K, o que levou a repartir o conteúdo em 4 arquivos para as ADIs e 1 para as ADPFs.
+Para que funcione perfeitamente com o extrator, indica-se que esses arquivos sejam extraídos para um subdiretório do seu diretório de trabalho, que deve ter o nome de "ADItotal". Se você preferir outro nome, basta alterar no programa STF_Organizador.py o path usado para identificar a fonte dos dados.
+Como o organizador incorpora todas as informações contidas nesse diretório, ele precisa ter somente os arquivos com os dados, sem contar com outros arquivos (como os tipo RAR ou outras informações, que acarretarão problemas na execução do organizador de dados.
 
 ## 4. Programa organizador dos dados: STF_Organizador.py
 Este programa parte dos dados gerados pelo STF_Extrator.py e organiza essas informações em tabelas no formato CSV. De fato, os arquivos são gravados como TXT, pois isso facilita a sua incorporação posterior ao Excel, que é o programa tipicamente usado para explorar inicialmente esses dados.
