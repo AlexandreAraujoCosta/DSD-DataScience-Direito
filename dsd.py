@@ -3,12 +3,14 @@ import requests
 import time
 import os
 from unicodedata import normalize
+###revisto
 
+def adicionar (nomedoarquivo, dados):
+    arquivo = open(nomedoarquivo, 'a', encoding='utf-8')
+    arquivo.write(dados)
+    arquivo.close
 
-def position1(list):
-    return(list[1])
-
-def csv_to_list_raw (file):
+def csv_to_list (file):
     csv.field_size_limit(16777216)
 
     lista = []
@@ -17,13 +19,142 @@ def csv_to_list_raw (file):
         for row in csv_reader:
             lista.append(row)
 
-                         
-                  
-            
     return (lista)
 
+def limpar(fonte):
+    fonte = fonte.replace('\n',' ')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip('"')
+    fonte = fonte.lstrip('>')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.replace('\t', '')
+    fonte = fonte.replace('/#','')
+    fonte = fonte.strip(' ')
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip('-')
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip(' ')
+    return fonte
 
-def csv_to_list(file):
+def limpar_tudo (fonte):
+    fonte = fonte.replace('\n',' ')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip(' ')
+    fonte = fonte.lstrip('"')
+    fonte = fonte.lstrip('>')
+    fonte = fonte.replace('  ',' ')
+    fonte = fonte.replace('\t', '')
+    fonte = fonte.replace('/#','')
+    fonte = fonte.strip(' ')
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip('-')
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip(' ')       
+    fonte = fonte.strip(' ')
+    fonte = fonte.replace('\r','|')
+    fonte = fonte.replace('|||||','|')
+    fonte = fonte.replace('||||','|')
+    fonte = fonte.replace('|||','|')
+    fonte = fonte.replace('||','|')
+    fonte = fonte.strip('|')
+    
+    return fonte
+
+def get (url):
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    html = requests.get(url, headers = user_agent)
+    html.encoding = 'utf-8'
+    html = html.text
+    return html
+
+def get_CC (url):
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    html = requests.get(url, headers = user_agent)
+    html.encoding = 'utf-8'
+    html = html.text
+    html = extrair (html,
+                   '<div class="titulo-formulario">',
+                   '<section id="mapa-do-site">')
+    return html
+
+
+
+def gravar (nomedoarquivo, dados):
+    arquivo = open(nomedoarquivo, 'w', encoding='utf-8')
+    arquivo.write(dados)
+    arquivo.close
+
+def write_csv_header (nomedoarquivo, string_campos):
+    string_campos = string_campos.replace('\n','')
+    lista_de_campos = string_campos.split(',')
+    if nomedoarquivo in os.listdir():
+        arquivoaberto = open(nomedoarquivo, mode='r+',
+                                 encoding="utf-8", newline='')
+        html = arquivoaberto.read()
+        arquivoaberto.close()
+
+        
+        if lista_de_campos[0] not in html[:100]:
+            arquivoaberto = open(nomedoarquivo, mode='w',
+                                 encoding="utf-8", newline='')
+            arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
+            arquivoaberto_csv.writerow(lista_de_campos)
+            arquivoaberto.close()
+    else:
+            arquivoaberto = open(nomedoarquivo, mode='w',
+                                 encoding="utf-8", newline='')
+            arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
+            arquivoaberto_csv.writerow(lista_de_campos)
+            arquivoaberto.close()
+            
+def write_csv_row (nomedoarquivo,dados):
+    if dados != []:
+        arquivoaberto = open(nomedoarquivo, mode='a+', encoding="utf-8", newline='')
+        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',', quotechar = '"')
+        arquivoaberto_csv.writerow(dados)
+        arquivoaberto.close()
+        
+def write_csv_rows (nomedoarquivo, dados):
+    if dados != []:
+        arquivoaberto = open(nomedoarquivo, mode='a+',
+                             encoding="utf-8", newline='')
+        arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',', quotechar = '"')
+        arquivoaberto_csv.writerows(dados)
+        arquivoaberto.close()
+
+### a rever
+
+def position1(list):
+    return(list[1])
+
+
+
+def csv_to_list_general (file):
+    csv.field_size_limit(16777216)
+
+    lista = []
+    with open(file) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            lista.append(row)
+
+    return (lista)
+
+def csv_to_list_titles(file):
     csv.field_size_limit(16777216)
 
     lista = []
@@ -35,17 +166,17 @@ def csv_to_list(file):
         n_campos = len(lista[0])
         
         for campo in range (n_campos):
-            tipo = 'string:'
+            tipo = str(campo) + ':string:'
             integral = 0
             amostra = len(lista)//10
             for n in range (amostra):
             
                 objeto = lista[n][campo]
                 
-                if objeto[0] == '[':
-                    tipo = "lista:"
+                if objeto != '' and objeto[0] == '[':
+                    tipo = str(campo) + ':lista:'
                     if objeto[1] == '[':
-                        tipo = 'lista2:'
+                        tipo = str(campo) + ':lista2:'
                     
                 try:
                         int(objeto)
@@ -53,10 +184,10 @@ def csv_to_list(file):
                         integral = integral + 1
                     
             if integral == 1:
-                tipo = 'int:'
+                tipo = str(campo) + ':int:'
                 
             lista[0][campo] = tipo + str(lista[0][campo])
-            print (f'Campo {campo+1} = {tipo}')
+            print (f'Campo {campo} = {str(lista[0][campo])}')
              
         for campo in range (n_campos):
             for linha in lista[1:]:
@@ -74,9 +205,7 @@ def csv_to_list(file):
                         linha[campo][n] = linha[campo][n].replace("'",'')
                         linha[campo][n] = linha[campo][n].replace(", ",',')
                         linha[campo][n] = linha[campo][n].split(',')
-                    
-                  
-            
+
     return (lista)
 
 def remover_acentos(txt):
@@ -169,7 +298,9 @@ def ajustar_nome(string):
             ['REGIAO -','REGIAO'],
             ['MATO-GROSSENSE','MATOGROSSENSE'],
             ['TRT - ','TRT '],
-            
+            ['CONSTAS ','CONTAS'],
+            ['J.G.A.C.','JOSE GABRIEL AVILA CAMPELLO'],
+            ['/DO ','/'],
             ['-',' - '],
             ['  ',' '],
             ['  ',' '],
@@ -214,39 +345,44 @@ def ajustar_nome(string):
             ['DIRETOR DA ',''],
             ['DIRETOR DO ',''],
             
-            [',','']
+            [',',''],
+            ['DP DA UNIAO','DPU'],
+            ['DPU DPU','DPU'],
+            ['DP GERAL','DP.GERAL'],
+            ['DP.GERAL','DP'],
+            ['FED NAC','FED.NAC.'],
+            ['AUXI LIARES','AUXILIARES'],
             
             
-            
-            # ['/ALAGOAS', '/AC'],
-            # ['/ALAGOAS', '/AL'],
-            # ['/AMAPA', '/AP'],
-            # ['/AMAZONAS', '/AM'],
-            # ['/BAHIA', '/BA'],
-            # ['/CEARA', '/CE'],
-            # ['/DISTRITO FEDERAL', '/DF'],
-            # ['/ESPIRITO SANTO', '/ES'],
-            # ['/GOIAS', '/GO'],
-            # ['/MARANHAO', '/MA'],
-            # ['/MATO GROSSO DO SUL', '/MS'],
-            # ['/MATO GROSSO', '/MT'],
-            # ['/MINAS GERAIS', '/MG'],
-            # ['/PARAIBA', '/PB'],
-            # ['/PARANA', '/PR'],
-            # ['/PERNAMBUCO', '/PE'],
-            # ['/PIAUI', '/PI'],
-            # ['/RIO DE JANEIRO', '/RJ'],
-            # ['/RIO GRANDE DO NORTE', '/RN'],
-            # ['/RIO GRANDE DO SUL', '/RS'],
-            # ['/RONDONIA', '/RO'],
-            # ['/RORAIMA', '/RR'],
-            # ['/SANTA CATARINA', '/SC'],
-            # ['/SAO PAULO', '/SP'],
-            # ['/SERGIPE', '/SE'],
-            # ['/PARA', '/PA'],
-            # ['/TOCANTINS', '/TO'],
-            # ['/ACRE','/AC'],
-            # ['/RIO DE JANEIRO','/RJ']
+            ['/ACRE', '/AC'],
+            ['/ALAGOAS', '/AL'],
+            ['/AMAPA', '/AP'],
+            ['/AMAZONAS', '/AM'],
+            ['/BAHIA', '/BA'],
+            ['/CEARA', '/CE'],
+            ['/DISTRITO FEDERAL', '/DF'],
+            ['/ESPIRITO SANTO', '/ES'],
+            ['/GOIAS', '/GO'],
+            ['/MARANHAO', '/MA'],
+            ['/MATO GROSSO DO SUL', '/MS'],
+            ['/MATO GROSSO', '/MT'],
+            ['/MINAS GERAIS', '/MG'],
+            ['/PARAIBA', '/PB'],
+            ['/PARANA', '/PR'],
+            ['/PERNAMBUCO', '/PE'],
+            ['/PIAUI', '/PI'],
+            ['/RIO DE JANEIRO', '/RJ'],
+            ['/RIO GRANDE DO NORTE', '/RN'],
+            ['/RIO GRANDE DO SUL', '/RS'],
+            ['/RONDONIA', '/RO'],
+            ['/RORAIMA', '/RR'],
+            ['/SANTA CATARINA', '/SC'],
+            ['/SAO PAULO', '/SP'],
+            ['/SERGIPE', '/SE'],
+            ['/PARA', '/PA'],
+            ['/TOCANTINS', '/TO'],
+            ['/ACRE','/AC'],
+            ['/RIO DE JANEIRO','/RJ']
             ]
     for item in trocar1:
         string = string.replace(item[0],item[1])
@@ -258,7 +394,12 @@ def ajustar_nome(string):
         string = 'DEM/PFL'
     if 'DEMOCRATAS' == string:
         string = 'DEM/PFL'
-    
+        
+    if ' SINDICATO ' in string:
+        string = string[string.find(' SINDICATO ')+1:] + ' ' + string[:string.find(' SINDICATO ')]
+        
+    if ' SOCIEDADE BRASILEIRA ' in string:
+        string = string[string.find(' SOCIEDADE BRASILEIRA ')+1:] + ' ' + string[:string.find(' SOCIEDADE BRASILEIRA ')]
     
     substituir = [
               ['PROCURADOR - GERAL DA REPUBLICA','PGR'],
@@ -305,6 +446,8 @@ def ajustar_nome(string):
               ['PARTIDO TRABALHISTA CRISTAO','PTC'],
               ['PARTIDO TRABALHISTA NACIONAL','PTN'],
               ['PARTIDO TRABALHISTA RENOVADOR','PTR'],
+              ['PARTIDO MUNICIPALISTA BRASILEIRO','PMB'],
+              ['PARTIDO NACIONAL DOS APOSENTADOS','PNA'],
               ['PARTIDO VERDE','PV'],
               ['PODEMOS','PODEMOS'],
               ['CONS.NAC. DE JUSTICA','CNJ'],
@@ -313,13 +456,22 @@ def ajustar_nome(string):
               ['SOLIDARIEDADE -','SOLIDARIEDADE'],
               ['PARTIDO NOVO','PARTIDO NOVO'],
               ['SUPREMO TRIBUNAL FEDERAL','STF'],
-              ['^',''],
+              # ['^',''],
               ['TRIBUNAL SUPERIOR DO TRABALHO','TST'],
-              ['DIRETOR DA RECEITA FEDERAL','SECRETARIA DA RECEITA FEDERAL'],
-              ['DEPARTAMENTO DA RECEITA FEDERAL','SECRETARIA DA RECEITA FEDERAL'],
+              ['DIRETOR DA RECEITA FEDERAL','RECEITA FEDERAL'],
+              ['DEPARTAMENTO DA RECEITA FEDERAL','RECEITA FEDERAL'],
               ['SINDIFISCO NACIONAL','SIND.NAC. AUDITORES FISCAIS DA RECEITA FEDERAL DO BRASIL SINDIFISCO NACIONAL'],
               ['UNIAO GERAL DOS TRABALHADORES','UNIAO GERAL DOS TRABALHADORES UGT'],
-              ['UNIAO NACIONAL DAS INSTITUICOES DE AUTOGESTAO EM SAUDE','UNIAO NACIONAL DAS INSTITUICOES DE AUTOGESTAO EM SAUDE UNIDAS']
+              ['UNIAO NACIONAL DAS INSTITUICOES DE AUTOGESTAO EM SAUDE','UNIAO NACIONAL DAS INSTITUICOES DE AUTOGESTAO EM SAUDE UNIDAS'],
+              ['AL/SAO PAULO ADI 2476 EM APENSO','AL/SAO PAULO'],
+              ['ARTIGO 19 BRASIL','ASSOC. ARTIGO 19 BRASIL'],
+              ['EDUCAFRO','ASSOC. EDUCACAO E CIDADANIA DE AFRO DESCENDENTES E CARENTES EDUCAFRO'],
+              ['TJ DO RIO DE JANEIRO','TJ DO RIO DE JANEIRO'],
+              ['TJ DE SAO PAULO','TJ DE SAO PAULO'],
+              ['TJ DE SANTA CATARINA','TJ DE SANTA CATARINA'],
+              ['TRT 22REG.','TRT 22REG.'],
+              ['OAB','OAB'],
+              ['ABRAMED','ASSOC. BRASILEIRA DE MEDICINA DIAGNOSTICA ABRAMED']
                          
               ]
     
@@ -435,9 +587,10 @@ def ajustar_nome(string):
     trocar = [['ASSEMBLEIA LEGISLATIVA DO ESTADO DE ', 'AL/'],
              ['ASSEMBLEIA LEGISLATIVA DO ESTADO DA ', 'AL/'],
              ['ASSEMBLEIA LEGISLATIVA DO ESTADO DO ', 'AL/'],
-             ['ASSEMBLEIA LEGISLATIVA DO','AL/'],
-             ['ASSEMBLEIA LEGISLATIVA DE','AL/'],
-             ['ASSEMBLEIA LEGISLATIVA DA','AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DO ESTADO ', 'AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DO ','AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DE ','AL/'],
+             ['ASSEMBLEIA LEGISLATIVA DA ','AL/'],
              ['ASSEMBLEIA LEGISLATIVA','AL/'],
              ['CONSELHO FEDERAL', 'CONS.FED'],
              ['CONSELHO', 'CONS.'],
@@ -453,6 +606,7 @@ def ajustar_nome(string):
              ['GOVERNADOR DE ','GOV./ '],
              ['GOVERNADOR DO ','GOV./ '],
              ['GOVERNADOR DA ','GOV./ '],
+             ['GOVERNADOR E AL/','GOV./'],
              ['SECRETARIO','SECRETARIA'],
              ['(0','('],
              ['(0','('],
@@ -537,9 +691,53 @@ def ajustar_nome(string):
              ['EM EXERCICIO',''],
              ['PRES. ',''],
              ['PATRIOTA PATRI','PARTIDO PATRIOTA'],
+             ['M.D. DA AL','AL'],
              ['-',''],
              ['  ',' '],
-             ['  ',' ']
+             ['  ',' '],
+             ['FEDERACAO D','FED. D'],
+             ['FEDERACAO INTERESTADUAL','FED.INTEREST.'],
+             ['FEDERACAO NAC ','FED.NAC. '],
+             # ['ASSOC. DAS ','ASSOC. '],
+             # ['ASSOC. DE ','ASSOC. '],
+             # ['ASSOC. DOS ','ASSOC. '],
+             # ['ASSOC. DE','ASSOC.'],
+             # ['.NAC. DAS ','ASSOC. '],
+             # ['.NAC. DE ','ASSOC. '],
+             # ['.NAC. DOS ','ASSOC. '],
+             # ['.NAC. DE','ASSOC.'],
+             # ['.NAC. E ','ASSOC.'],
+             # ['.BRAS. DAS ','ASSOC. '],
+             # ['.BRAS. DE ','ASSOC. '],
+             # ['.BRAS. DOS ','ASSOC. '],
+             # ['.BRAS. DE','ASSOC.'],
+             ['NEOTV ', 'NEO TV'],
+             ['MUNICIPAIS ANMP','MUNICIPAIS ANPM'],
+             ['DIRETORIO NACIONAL DO',''],
+             ['DIRETORIO NACIONAL',''],
+             ['FORCA SINDICAL FS','FORCA SINDICAL'],
+             ['FRENTE NACIONAL','FRENTE.NAC.'],
+             ['/S ','/ '],
+             ['MP FEDERAL','PGR'],
+             ['DP DA UNIAO','DPU'],
+             ['DP DA UNIAO DPU','DPU'],
+             ['DP.GERAL','DP '],
+             [' S A ',' S.A.'],
+             ['FEDERACAO','FED.'],
+             ['CORREGEDORIAREGIONAL','CORREG.REG.'],
+             ['AL./DO ','AL./'],
+             ['D.G. DA A','A'],
+             ['DIRETOR AGENCIA','AGENCIA'],
+             ['DIRETORIA COLEGIADA DA AGENCIA','AGENCIA'],
+             ['SECRETARIA DA RECEITA FEDERAL DO BRASIL', 'RECEITA FEDERAL'],
+             ['SECRETARIA DE SEGURANCA PUBLICA','SSP'],
+             ['TCDO','TC/ '],
+             ['CNPGEDF','CONPEG'],
+             ['DE DIREITO FUNDAMENTAIS','DE DIREITOS FUNDAMENTAIS'],
+             ['CONF NACIONAL','CONF.NAC.'],
+             ['DPU DPU','DPU']
+             
+             
              ]
     
     for item in trocar:
@@ -550,7 +748,10 @@ def ajustar_nome(string):
         
     if string[:8] == 'ESTADO D':
         string = string[10:]
-        
+    
+    if string[0:2] == 'O ':
+        string = string[2:]
+    
     string.strip(',')
     string.strip()
     
@@ -559,7 +760,8 @@ def ajustar_nome(string):
 def extrair_partes(string):
     string = remover_acentos(string)
     
-    partes = string.split('<div class="processo-partes lista-dados">')
+    partes = string.split('<div class="processo-partes lista-dados m-l-16 p-t-0">')
+    # print (partes)
     
     n=0
     lista_partes = []
@@ -567,12 +769,12 @@ def extrair_partes(string):
     for parte in partes[1:]:
         n = n+1
         ordem = n
-        tipo = extrair(parte, 'detalhe-parte">', '</div>').upper()
+        tipo = extrair(parte, 'detalhe-parte">', '<').upper()
         tipo = tipo.replace('REQTE.(S)','REQTE')
         tipo = tipo.replace('INTDO.(A/S)','INTDO')
         tipo = tipo.replace('ADV.(A/S)','ADV')
         tipo = tipo.replace('AM. CURIAE.','AMICUS')
-        nome = extrair(parte, '"nome-parte">', '&nbsp').upper()
+        nome = extrair(parte, '"nome-parte">', '<').upper()
         nome = ajustar_nome(nome)
         if tipo == 'ADV':
             if "(" in nome:
@@ -585,19 +787,20 @@ def extrair_partes(string):
 def listar_partes(string, processo):
     string = remover_acentos(string)
     
-    partes = string.split('<div class="processo-partes lista-dados">')
+    partes = string.split('<div class="processo-partes lista-dados m-l-16 p-t-0">')
     
     lista_partes = []
     
     for parte in partes[1:]:
-        tipo = extrair(parte, 'detalhe-parte">', '</div>').upper()
+        tipo = extrair(parte, 'detalhe-parte">', '<').upper()
         tipo = tipo.replace('REQTE.(S)','REQTE')
         tipo = tipo.replace('INTDO.(A/S)','INTDO')
         tipo = tipo.replace('REQDO.(A/S)','INTDO')
         tipo = tipo.replace('ADV.(A/S)','ADV')
         tipo = tipo.replace('AM. CURIAE.','AMICUS')
         tipo = tipo.replace('PROC.(A/S)(ES)','ADV/PUB')
-        nome = extrair(parte, '"nome-parte">', '&nbsp').upper()
+        tipo = limpar(tipo)
+        nome = extrair(parte, '"nome-parte">', '<').upper()
         nome = ajustar_nome(nome)
         if tipo == 'ADV' or tipo == 'ADV/PUB':
             if "(" in nome:
@@ -612,25 +815,35 @@ def listar_partes(string, processo):
 def extrair_andamentos(string):
     string = remover_acentos(string)
     string = limpar(limpar(string))
-    partes = string.split('<div class="andamento-item">')
+    andamentos = string.split('<div class="andamento-item">')
     
-    n=0
+    n= len(andamentos)
     lista_andamentos = []
     
-    for parte in partes[1:]:
-        n = n+1
-        ordem = n
-        data = extrair(parte, '<div class="andamento-data ">','</div>').upper()
-        nome = extrair(parte, '<h5 class="andamento-nome ">','</h5>').upper()
-        complemento = extrair(parte, '<div class="col-md-9 p-0">','</div>').upper()
+    for andamento in andamentos[1:]:
+        data = 'NA'
+        nome = 'NA'
+        complemento = 'NA',
+        docs = 'NA'
+        julgador = 'NA'
+        
+        # com esse formato, os andamentos indevidos não são incorporados, pois a classe deles envolve 'andamento indevido', para gerar o taxado
+        n = n-1
+        ordem = str(n).zfill(4)
+        andamento = andamento.replace('"col-md-9 p-0 "','"col-md-9 p-0"')
+        data = extrair(andamento, '<div class="andamento-data ">','</div>').upper()
+        nome = extrair(andamento, '<h5 class="andamento-nome ">','</h5>').upper()
+        
+        complemento = extrair(andamento, '<div class="col-md-9 p-0">','</div>').upper()
         if complemento == ' ' or complemento == '':
             complemento = 'NA'
-        docs = extrair(parte, '"col-md-4 andamento-docs">','</div>')
+            
+        docs = extrair(andamento, '"col-md-4 andamento-docs">','</div>')
         if docs == ' ' or docs == '':
             docs = 'NA'
         if 'href=' in docs:
             docs = extrair(docs,'href="', '"')
-        julgador = extrair(parte, 'julgador badge bg-info ">','</span>').upper()
+        julgador = extrair(andamento, 'julgador badge bg-info ">','</span>').upper()
         #print ([ordem, data, nome, complemento, docs, julgador])
         
         lista_andamentos.append([ordem, data, nome, complemento, docs, julgador])
@@ -651,6 +864,8 @@ def solicitar_dados_Juris (classe, numero):
 
 def solicitar_dados_CC (classe, numero):
     url = ('http://www.stf.jus.br/portal/peticaoInicial/verPeticaoInicial.asp?base='
+    # url = ('http://www.stf.jus.br/portal/peticaoInicial/verPeticaoInicial.asp?base='
+
            + classe
            + '&documento=&s1=1&numProcesso='
            + numero)
@@ -674,7 +889,8 @@ def solicitar_dados_mono (classe, numero):
 
     print (url)
     # Módulo básico de extração
-    string = requests.get(url).text
+    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    string = requests.get(url, headers = user_agent).text
     inicio = string.find('<a href="#" id="imprimir" onclick="sysImprimir(); return false;">Imprimir</a>')
     return (url + ">>>>> \n" + string[inicio:])
 
@@ -701,9 +917,10 @@ def solicitar_dados (dominio, path, querry):
     html = html.text
     return html
 
-def get (url):
-    user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
-    html = requests.get(url, headers = user_agent)
+
+def get2 (url):
+    # user_agent = {'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'}
+    html = requests.get(url)
     # html.encoding = 'utf-8'
     html = html.text
     return html
@@ -757,11 +974,12 @@ def gravar_dados_no_arquivo (classe, numero, path, dados):
     arquivo.write(dados)
     arquivo.close
     
-
+#repetido
 def gravar_dados_no_arquivo_nome (nomedoarquivo, dados):
     arquivo = open(nomedoarquivo, 'w', encoding='utf-8')
     arquivo.write(dados)
     arquivo.close
+
 
 def extrair_da_lista (relacao_de_arquivos, path):
     nomedoarquivo = relacao_de_arquivos.pop()
@@ -771,7 +989,7 @@ def extrair_da_lista (relacao_de_arquivos, path):
     return nomedoarquivo, html
 
 def limpa_estado(string):
-    estados = [['ALAGOAS', '/AC'],
+    estados = [['ACRE', '/AC'],
      ['ALAGOAS', '/AL'],
      ['AMAPA', '/AP'],
      ['AMAZONAS', '/AM'],
@@ -805,7 +1023,7 @@ def limpa_estado(string):
     return string
 
 def estado_nome_completo(string):
-    estados = [['ALAGOAS', '/AC'],
+    estados = [['ACRE', '/AC'],
      ['ALAGOAS', '/AL'],
      ['AMAPA', '/AP'],
      ['AMAZONAS', '/AM'],
@@ -867,28 +1085,7 @@ def siglas():
  'TO']      
  
 #   funções de limpeza
-def limpar(fonte):
-    fonte = fonte.replace('\n',' ')
-    fonte = fonte.replace('  ',' ')
-    fonte = fonte.replace('  ',' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip(' ')
-    fonte = fonte.lstrip('"')
-    fonte = fonte.lstrip('>')
-    fonte = fonte.replace('  ',' ')
-    fonte = fonte.replace('\t', '')
-    fonte = fonte.replace('/#','')
-    fonte = fonte.strip(' ')
-    fonte = fonte.strip(' ')       
-    fonte = fonte.strip('-')
-    fonte = fonte.strip(' ')       
-    fonte = fonte.strip(' ')       
-    fonte = fonte.strip(' ')
-    return fonte
+
 
 def limpar_numero(numero):
     numero = numero.replace('<FONT COLOR=RED><B>','')
@@ -931,28 +1128,7 @@ def limpar_arquivo(nomedoarquivo):
                              encoding="utf-8", newline='')
     arquivoaberto.close()
 
-def write_csv_header (nomedoarquivo, string_campos):
-    string_campos = string_campos.replace('\n','')
-    lista_de_campos = string_campos.split(',')
-    if nomedoarquivo in os.listdir():
-        arquivoaberto = open(nomedoarquivo, mode='r+',
-                                 encoding="utf-8", newline='')
-        html = arquivoaberto.read()
-        arquivoaberto.close()
 
-        
-        if lista_de_campos[0] not in html[:100]:
-            arquivoaberto = open(nomedoarquivo, mode='w',
-                                 encoding="utf-8", newline='')
-            arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
-            arquivoaberto_csv.writerow(lista_de_campos)
-            arquivoaberto.close()
-    else:
-            arquivoaberto = open(nomedoarquivo, mode='w',
-                                 encoding="utf-8", newline='')
-            arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',')
-            arquivoaberto_csv.writerow(lista_de_campos)
-            arquivoaberto.close()
 
 
 
@@ -961,15 +1137,17 @@ def esperar (segundos, ciclos, variavel0):
         print ('espera ' + str(variavel0))
         time.sleep(segundos)
 
-
+#repetido
 def write_csv_line (nomedoarquivo,dados):
     if dados != []:
-        arquivoaberto = open(nomedoarquivo, mode='a+',
-                             encoding="utf-8", newline='')
+        arquivoaberto = open(nomedoarquivo, mode='a+', encoding="utf-8", newline='')
         arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',', quotechar = '"')
         arquivoaberto_csv.writerow(dados)
         arquivoaberto.close()
+        
 
+
+#repetido
 def write_csv_lines (nomedoarquivo, dados):
     if dados != []:
         arquivoaberto = open(nomedoarquivo, mode='a+',
@@ -977,6 +1155,8 @@ def write_csv_lines (nomedoarquivo, dados):
         arquivoaberto_csv = csv.writer(arquivoaberto, delimiter=',', quotechar = '"')
         arquivoaberto_csv.writerows(dados)
         arquivoaberto.close()
+        
+
 
 def extrai_acordaos_da_string (arquivo_a_extrair, path):  # usar duas contra-barras depois do nome
 
@@ -1330,3 +1510,847 @@ def substituir_data (string):
     string = string.replace('dez','11')
     
     return(string)
+
+def inserir_ocorrencias(lista):
+
+    contador = 0
+    for item in lista:
+        contador = contador + 1
+        ocorrencias_item = str(lista).count("'" + item[0] + "'")
+        item.insert(1,ocorrencias_item)
+        print ('Inserindo número de ocorrências: ' + str(contador) + ' de ' + str(len(lista)))
+    # return lista.sort()
+
+def consolidar_entradas (lista):
+    partes_unicas = []
+    contador = 0
+    if len(lista) > 0:
+        contador = contador +1
+        for n in range(len(lista)-1):
+            print ('Consolidando entradas: ' + str(contador) + ' de ' + str(len(lista)*2))
+            if lista[n][0] == lista[n+1][0]:
+                lista[n+1][2].extend(lista[n][2])
+                lista[n][2] = lista[n+1][2]
+                
+            
+        for n in range(len(lista)-1):
+            contador = contador + 1
+            print ('Consolidando entradas: ' + str(contador) + ' de ' + str(len(lista)*2))
+            if lista[n][0] != lista[n+1][0]:
+                partes_unicas.append(lista[n])
+        if lista[-1][0] != lista[-2][0]:
+            partes_unicas.append(lista[-1])
+        
+        
+    partes_unicas.sort()
+    return (partes_unicas)
+
+def igualar_entradas_identicas_partes (lista,iguais):
+    
+    lista.sort(reverse = True, key = lambda elem: elem[0])
+    for i in range(len(lista)-1):
+        item1 = lista[i]
+        item2 = lista[i+1]
+        if item2[0] == item1[0][:len(item2[0])]:
+            if (item1[0] != item2[0] 
+                and len(item2[0]) > 18 
+                and '/' not in item1[0] 
+                and '.' not in item1[0]):
+                #mantém o que tem mais entradas
+                if lista[i+1][1] > lista[i][1]:
+                    iguais.append((lista[i+1][0], lista[i+1][1],lista[i+1][0],lista[i][1]))
+                    lista[i+1][0] = lista[i][0]
+                else:
+                    iguais.append((lista[i][0],lista[i][1],lista[i+1][0],lista[i+1][1]))
+                    lista[i+1][0] = lista[i][0]
+            elif (item2[0] == 'CIDADANIA' or
+                  'OAB' in item2[0] or
+                  'SIND.' in item2[0] or
+                  'MP DO TRABALHO' in item2[0] or
+                  'RECEITA FEDERAL' in item2[0] or 
+                  'CONS.NAC.' in item2[0]
+                  ):
+                #mantém o que tem mais entradas
+                if lista[i+1][1] > lista[i][1]:
+                    iguais.append((lista[i+1][0], lista[i+1][1],lista[i+1][0],lista[i][1]))
+                    lista[i+1][0] = lista[i][0]
+                else:
+                    iguais.append((lista[i][0],lista[i][1],lista[i+1][0],lista[i+1][1]))
+                    lista[i+1][0] = lista[i][0]
+    lista.sort()
+    return lista,iguais
+
+def igualar_entradas_identicas_partes_advogados (lista,iguais):
+    
+    lista.sort(reverse = False, key = lambda elem: elem[0])
+    for i in range(len(lista)-1):
+        item1 = lista[i]
+        item2 = lista[i+1]
+        if (item1[0] == item2[0][:len(item1[0])] 
+            and item1[0] != item2[0] 
+            and len(item2[0]) > 18 
+            and '/' not in item1[0] 
+            and '.' not in item1[0] 
+            and 'CLAUDIO SANTOS' not in item1[0]):
+            if lista[i+1][1] > lista[i][1]:
+                iguais.append((lista[i+1][0], lista[i+1][1],lista[i+1][0],lista[i][1]))
+                lista[i+1][0] = lista[i][0]
+            else:
+                iguais.append((lista[i][0],lista[i][1],lista[i+1][0],lista[i+1][1]))
+                lista[i+1][0] = lista[i][0]          
+    lista.sort()
+    return lista,iguais
+
+def consolida_partes (lista):
+    for item in lista:
+        processo_parte = (item[1],item[2])
+        item.append([processo_parte])
+        item.pop(1)
+        item.pop(1)
+    return lista
+
+def ajusta_requerentes (string):
+    string = string.replace('FERNANDO AFFONSO COLLOR DE MELLO','ALAGOAS')
+    string = string.replace('ADVOGADO GERAL DA UNIAO','PRESIDENTE DA REPUBLICA')
+    string = string.replace('FENABAN ', '')
+    string = string.replace('SINDICATO D','SIND. D')
+    
+
+    governadores = ['ACRE',
+                     'ALAGOAS',
+                     'AMAPA',
+                     'AMAZONAS',
+                     'BAHIA',
+                     'CEARA',
+                     'ESPIRITO SANTO',
+                     'GOIAS',
+                     'MARANHAO',
+                     'MATO GROSSO',
+                     'MATO GROSSO DO SUL',
+                     'MINAS GERAIS',
+                     'PARA',
+                     'PARAIBA',
+                     'PARANA',
+                     'PARANA',
+                     'PERNAMBUCO',
+                     'PIAUI',
+                     'PROC.GERAL DO AMAPA',
+                     'RIO DE JANEIRO',
+                     'RIO GRANDE DO NORTE',
+                     'RIO GRANDE DO SUL',
+                     'RONDONIA',
+                     'RORAIMA',
+                     'SANTA CATARINA',
+                     'SAO PAULO',
+                     'SERGIPE',
+                     'TOCANTINS',
+                     'TOCANTINSMATO GROSSO']
+    for item in governadores:
+        if string == item:
+            string = 'GOV./' + item
+
+    
+    return string
+
+def converter_csv_excel (arquivo):
+    
+    dados = carregar_arquivo(arquivo)
+    
+    dados = dados.replace(';[',';"[')
+    dados = dados.replace('];',']";')
+    dados = dados.replace(';',',')
+    
+    return (dados)
+
+def processar_andamentos (andamentos):
+    
+    a_analisar = []
+    andamentos_excluidos = []
+    andamentos_filtrados = []
+    interlocutorias = []
+    atas = []
+    virtual = []
+    redistribui = []
+    embargos = []
+    despachos = []
+    agravos = []
+    pautas = []
+    pedidos = []
+    baixadoem = 'NA'
+    primeirorelator = 'NA'
+    prevencao = 'NA'
+    ministroexcluido = 'NA'
+    protocolado = 'NA'
+    autuado = 'NA'
+    processofindo = 'NA'
+    ritoart12 = 'NA'
+    transitoemjulgado = 'NA'
+    orgaojulg = 'NA'
+    conexo = 'NA'
+    
+#     for andamento in andamentos:
+#         if andamento == ['']:
+#             break
+#         else:
+            
+#             index = andamento[0]
+#             data = andamento[1]
+#             nome = andamento[2]
+#             complemento = andamento[3]
+#             julgador = andamento[5]
+    
+#             nome = nome.replace('JULG. ','JULGAMENTO ')
+#             nome = nome.replace('  ', ' ')
+#             nome = nome.replace('JULGAMENTO NO PLENO', 'JULGAMENTO DO PLENO:')
+#             nome = nome.replace('JULG. POR DESPACHO -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DA RELATORA', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DO RELATOR', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DO(A) RELATOR(A) -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DO(A) RELATOR(A) -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('JULGAMENTO POR DESPACHO -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('JULGAMENTO DO PLENO -', 'JULGAMENTO DO PLENO:')
+#             nome = nome.replace('JULGAMENTO DO PLENO', 'JULGAMENTO DO PLENO:')
+#             nome = nome.replace('DECISAO DA PRESIDENCIA -', 'DECISAO DA PRESIDENCIA:')
+#             nome = nome.replace('DO RELATOR NO PL','')
+#             nome = nome.replace('CONEXA COM O PROCESSO N', 'CONEXAO: ')
+#             nome = nome.replace('CONEXAO PROC. N.', 'CONEXAO')
+#             nome = nome.replace('DECISAO LIMINAR -', 'LIMINAR:')
+#             nome = nome.replace('LIMINAR POR DESPACHO','LIMINAR JULGADA POR DESPACHO:')
+#             nome = nome.replace('LIMINAR JULGAMENTO POR DESPACHO','LIMINAR JULGADA POR DESPACHO:')
+#             nome = nome.replace('::',':')
+    
+#             if nome == 'DEFERIDA':
+#                 nome = nome.replace('DEFERIDA','LIMINAR DEFERIDA')
+            
+#             if nome == 'DEF. EM PARTE':
+#                 nome = nome.replace('DEF. EM PARTE','LIMINAR DEFERIDA EM PARTE')
+            
+#             if 'NAO VERIFICO NA ESPECIE A PRESENÇA DE PERICULUM IN MORA' in complemento and nome == '':
+#                 nome = 'LIMINAR INDEFERIDA'
+                
+#             if 'COLHAM-SE, PRIMEIRAMENTE, AS MANIFESTACOES' in complemento and nome == '':
+#                 nome = 'VISTA AO AGU'
+                
+#             if 'NEGO SEGUIMENTO A INICIAL' in complemento:
+#                 nome = 'NEGADO SEGUIMENTO'
+                
+#             if 'ANTE O EXPOSTO, NEGO SEGUIMENTO A PRESENTE ACA0' in complemento:
+#                 nome = 'NEGADO SEGUIMENTO'
+                
+#             if 'INDEFIRO LIMINARMENTE O PEDIDO' in complemento:
+#                 nome = 'INDEFERIDA A INICIAL'
+                
+        
+#         AutuacaoRetificada = 'NA'
+#         if 'RETIFICACAO DE AUTUACAO' in nome or 'RETIFICACAO DE AUTUACAO' in complemento:
+#             AutuacaoRetificada = 'sim'
+            
+#         if (data == 'NA' or
+#             'VISTA A PGR PARA FINS DE INTIMACAO' in nome or
+#             'VISTA AO ADV' in nome or
+#             'VISTA AO PROCURADOR-GERAL' in nome or
+#             'RETIFICACAO DE AUTUACAO' in nome or 
+#             'LANÇAMENTO INDEVIDO' in nome or 
+#             'AMENTO INDEVIDO' in nome or 
+#             'CONVERTIDO EM ELET' in nome or 
+#             'APENSADO' in nome or 
+#             'APENSACAO' in nome or
+#             'DETERMINADA A REDISTRIB' in nome or
+#             'DETERMINADA CITACAO' in nome or
+#             'DETERMINADA INTIMACAO' in nome or
+#             nome[:7] == 'CONCLUS' or 
+#             'CONCLUSOS' in nome or 
+#             nome == 'CONCLUSAO' or 
+#             nome[:5] == "AUTOS" or 
+#             'REMESSA DOS AUTOS' in nome or 
+#             'COBRADA A DEVOLU' in nome or
+#             nome == 'CERTIDAO' or 
+#             nome == 'PETICAO' or 
+#             'ARQUIVADA A PET' in nome or 
+#             nome == 'CIENCIA' or 
+#             nome == 'CIENTE' or
+#             nome[:9] == 'COMUNICAD' or 
+#             nome[:6] == 'INTIMA' or 
+#             'COMUNICACAO ASSINAD' in nome or
+#             'INFORMACOES PRESTADAS' in nome or
+#             'JUNTADA' in nome or 
+#             'DEVOLUCA DE' in nome or
+#             'VISTA A PGR' in nome or 
+#             'RECEBIMENTO DOS' in nome or 
+#             'MANIFESTACAO DA' in nome or
+#             nome == 'PETICAO AVULSA' or 
+#             nome == 'PETICAO' or 
+#             'DESENTRANHAMENTO' in nome or 
+#             'RECEBIMENTO EXTERNO DOS AUTOS' in nome or
+#             nome == 'VISTA AO AGU' or
+#             'PUBLICADA, DJ' in nome or 
+#             'JULGAMENTO PUBLICADA' in nome or
+#             'DECISAO PUBLICADA' in nome or 
+#             nome == 'DECISAO PUBLICADA, DJ:' or 
+#             'PUBLICADA NO D' in nome or 
+#             'REPUBLICAD' in nome or
+#             nome == 'REMESSA DOS AUTOS' or
+#             nome == 'REMESSA' or
+#             'AUTOS DEVOLVIDOS' in nome or
+#             nome[:7] == 'INFORMA' or
+#             nome[:7] == 'PUBLICA' or
+#             nome == 'VIDE' or
+#             nome == 'ACORDAO N.:'or
+#             nome == 'REMESSA:' or
+#             nome == 'REMESSA' or
+#             nome == 'AUTOS COM:' or
+#             'EXPEDIDO' in nome or
+#             nome[:7] == 'PUBLICA' or
+#             'COMUNICADA D' in nome or
+#             nome[:8] == 'COMUNICA' or
+#             'INFORMACOES RECEBIDAS' in nome or
+#             'EXPEDIDO OFICIO N' in nome or
+#             nome[:6] == 'EXPEDI' or
+#             'PEDIDO DE INFORMACOES' in nome):
+#                 index = 'EXCLUIDO'
+        
+#         # campo baixado
+#         if (nome == 'DECORRIDO O PRAZO'):
+#             transitoemjulgado = data 
+#             index = 'FILTRADO'
+
+#         if (nome == 'TRANSITADO EM JULGADO' or
+#             nome == "TRANSITADO(A) EM JULGADO"):
+#             transitoemjulgado = data 
+#             index = 'FILTRADO'  
+
+#         if nome[:5] == "BAIXA":
+#             baixadoem = data
+#             index = 'FILTRADO'
+            
+#         if nome == 'PROCESSO FINDO':
+#             processofindo = data
+#             index = 'FILTRADO'
+            
+#         if nome == 'PROTOCOLADO':
+#             protocolado = data 
+#             index = 'FILTRADO'
+            
+#         if nome == 'AUTUADO':
+#             autuado = data 
+#             index = 'FILTRADO'
+            
+            
+#         if (nome == 'DISTRIBUIDO' or 
+#                 nome == 'REGISTRADO'):
+#             distribuido = data
+#             primeirorelator = complemento
+#             primeirorelator = primeirorelator.replace('MIN. ','')
+#             index = 'FILTRADO'
+            
+
+#         if (nome == 'REGISTRADO A PRESIDENCIA' or 
+#             nome == 'REGISTRADO'):
+#             distribuido = data
+#             primeirorelator = 'PRESIDENTE'
+#             index = 'FILTRADO'
+            
+#         if (nome == 'DISTRIBUIDO POR PREVENCAO' or
+#             nome == 'DISTRIBUÍDO POR PREVENÇÃO'):
+#             distribuido = data
+#             primeirorelator = complemento
+#             prevencao = "PREVENÇÃO"
+#             index = 'FILTRADO'
+    
+#         if (nome == 'DISTRIBUIDO/EXCLUSAO DE MINISTRO' or 
+#             'DISTRIBUIDO POR EXCLUS' in nome):
+#             distribuido = data
+#             ministroexcluido = complemento
+#             ministroexcluido = ministroexcluido.replace("MIN. ",'')
+#             index = 'FILTRADO'        
+            
+#         if nome[:7]=='CONEXAO' or nome == 'CONEXAO':
+#             conexo = complemento
+#             index = 'FILTRADO'
+
+
+# #       # Identifica Rito do Art. 12, da Lei 9.868/99':
+#         if ('ADOTADO RITO DO ART. 12' in complemento or 
+#                 'ADOTADO RITO DO ART. 12' in nome or 
+#                 'ADOTO O RITO DO ART. 12' in complemento or 
+#                 'COM A ADOÇÃO DO RITO DE TRAMITAÇÃO ABREVIADA' in complemento or 
+#                 'ENTENDO TER APLICAÇÃO NA HIPÓTESE O DISPOSTO NO ARTIGO 12 DA LEI 9868/99' in complemento):
+#                 nome ='LIMINAR INDEFERIMENTO IMPLÍCITO (RITO ART. 12)'  
+                
+#         if (' RITO' in complemento and
+#                   '12' in complemento and 
+#                   'ART' in complemento):
+#                 ritoart12 = data
+                
+#         if (' RITO' in nome and
+#                   '12' in nome and 
+#                   'ART' in nome):
+#                 ritoart12 = data
+                
+#         # insere orgaojulg         
+#         if 'JULGAMENTO DO PLENO' in nome:
+#             nome = nome.replace('JULGAMENTO DO PLENO','')
+#             orgaojulg = 'PLENO'
+            
+#         if 'JULGAMENTO POR DESPACHO' in nome and julgador == '':
+#             nome=nome.replace('JULGAMENTO POR DESPACHO','')
+#             orgaojulg = 'MONOCRATICA'
+            
+       
+#         if 'LIMINAR JULGADA PELO PLENO - ' in nome:
+#               nome = nome.replace('LIMINAR JULGADA PELO PLENO - ','')
+#               orgaojulg = 'PLENO'
+              
+#         if 'LIMINAR JULGADA POR DESPACHO - ' in nome:
+#               nome = nome.replace('LIMINAR JULGADA POR DESPACHO - ','')
+#               orgaojulg = 'MONOCRATICA'
+              
+#         if 'DECISÃO DA PRESIDÊNCIA' in nome:
+#               orgaojulg = 'PRESIDENCIA'
+              
+#           # #identifica decisoes secundárias
+
+          
+# # # questoes de ordem
+#         if (   nome == 'QUESTAO DE ORDEM' or 
+#             'DECISAO INTERLOCUTORIA' in nome or 
+#             nome[:8] == 'DETERMINAD'):
+#             interlocutorias.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if 'ATA DE JULGAMENTO' in nome:
+#             atas.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if 'JULGAMENTO VIRTUAL' in nome:
+#             virtual.append(andamento)
+#             index = 'FILTRADO'    
+            
+#         if ('REDISTRIBU' in nome or 
+#             'SUBSTITUIÇÃO DO RELATOR' in nome or 
+#             'SUBSTITUICAO DO RELATOR' in nome or 
+#             'REDISTRIBUA-SE' in complemento):
+#             redistribui.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if ('EMBARGOS' in nome or 
+#             'INTERPOSTOS' in nome):
+#             embargos.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if  ('DETERMINADA DILI' in nome or 
+#             'DESPACHO ORDINATORIO' in nome or 
+#             nome == 'DESPACHO' or 
+#             nome[:8] == 'DESPACHO'):
+#             despachos.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if ('AGRAVO ' in nome or 
+#             'INTERPOSTO ' in nome or 
+#             'HOMOLOGADA A DESISTENCIA' in nome or 
+#             nome == 'REJEITADO'):
+#             agravos.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if  ('RETIRADO DA MESA' in nome or 
+#                 nome == 'ADIADO O JULGAMENTO' or 
+#                 'NA LISTA DE JULGAMENTO' in nome or 
+#                 'PROCESSO A JULGAMENTO' in nome or 
+#                 'PAUTA' in nome or 
+#                 'CALENDARIO' in nome or 
+#                 'DIA PARA JULGAMENTO' in nome or 
+#                 'EM MESA PARA' in nome or 
+#                 'PAUTA' in nome or 
+#                 'EM MESA' in nome or 
+#                 'DE MESA' in nome or 
+#                 'COM DIA PARA JULGAMENTO' in nome):
+#             pautas.append(andamento)
+#             index = 'FILTRADO'
+            
+#         if ('PEDIDO DE LIMINAR' in nome or 
+#                 'REQUERIDA TUTELA PROVISORIA' in nome):
+#             pedidos.append(andamento)
+#             index = 'FILTRADO'
+            
+#         # ampliando data de transito para baixado ou processo findo
+#         if baixadoem == 'NA':
+#             baixadoem = processofindo
+            
+#         if transitoemjulgado == 'NA':
+#             transitoemjulgado = baixadoem
+                
+#         # andamento[0] = index
+#         # andamento[1] = data
+#         # andamento[2] = nome
+#         # andamento[3] = complemento
+#         # andamento[5] = julgador
+        
+#         andamento.append(orgaojulg)
+
+#         if index == 'FILTRADO':
+#             andamentos_filtrados.append(andamento)
+        
+#         elif index == 'EXCLUIDO':
+#             andamentos_excluidos.append(andamento)
+            
+#         else:
+#             a_analisar.append(andamento)
+            
+#     if andamentos != []:
+#         data_ultimo_andamento = andamentos[0][1]   
+#     else:
+#         data_ultimo_andamento = 'NA'
+            
+#     return (andamentos_filtrados, andamentos_excluidos, a_analisar, interlocutorias, 
+#             atas, virtual, redistribui, embargos, despachos, agravos, pautas, pedidos, 
+#             baixadoem, primeirorelator, prevencao, ministroexcluido, protocolado, autuado,
+#             processofindo, ritoart12, transitoemjulgado, orgaojulg, conexo, 
+#             AutuacaoRetificada, data_ultimo_andamento)
+
+# def processar_andamentos2 (andamentos):
+    
+#     a_analisar = []
+#     andamentos_excluidos = []
+#     andamentos_filtrados = []
+#     interlocutorias = []
+#     atas = []
+#     virtual = []
+#     redistribui = []
+#     embargos = []
+#     despachos = []
+#     agravos = []
+#     pautas = []
+#     pedidos = []
+#     baixadoem = 'NA'
+#     primeirorelator = 'NA'
+#     prevencao = 'NA'
+#     ministroexcluido = 'NA'
+#     protocolado = 'NA'
+#     autuado = 'NA'
+#     processofindo = 'NA'
+#     ritoart12 = 'NA'
+#     transitoemjulgado = 'NA'
+#     orgaojulg = 'NA'
+#     conexo = 'NA'
+    
+#     for andamento in andamentos:
+#         if andamento == ['']:
+#             break
+#         else:
+            
+#             index = andamento[0]
+#             data = andamento[1]
+#             nome = andamento[2]
+#             complemento = andamento[3]
+#             julgador = andamento[5]
+    
+#             nome = nome.replace('JULG. ','JULGAMENTO ')
+#             nome = nome.replace('  ', ' ')
+#             nome = nome.replace('JULGAMENTO NO PLENO', 'JULGAMENTO DO PLENO:')
+#             nome = nome.replace('JULG. POR DESPACHO -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DA RELATORA', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DO RELATOR', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DO(A) RELATOR(A) -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('DECISAO DO(A) RELATOR(A) -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('JULGAMENTO POR DESPACHO -', 'JULGAMENTO POR DESPACHO:')
+#             nome = nome.replace('JULGAMENTO DO PLENO -', 'JULGAMENTO DO PLENO:')
+#             nome = nome.replace('JULGAMENTO DO PLENO', 'JULGAMENTO DO PLENO:')
+#             nome = nome.replace('DECISAO DA PRESIDENCIA -', 'DECISAO DA PRESIDENCIA:')
+#             nome = nome.replace('DO RELATOR NO PL','')
+#             nome = nome.replace('CONEXA COM O PROCESSO N', 'CONEXAO: ')
+#             nome = nome.replace('CONEXAO PROC. N.', 'CONEXAO')
+#             nome = nome.replace('DECISAO LIMINAR -', 'LIMINAR:')
+#             nome = nome.replace('LIMINAR POR DESPACHO','LIMINAR JULGADA POR DESPACHO:')
+#             nome = nome.replace('LIMINAR JULGAMENTO POR DESPACHO','LIMINAR JULGADA POR DESPACHO:')
+#             nome = nome.replace('::',':')
+    
+#             if nome == 'DEFERIDA':
+#                 nome = nome.replace('DEFERIDA','LIMINAR DEFERIDA')
+            
+#             if nome == 'DEF. EM PARTE':
+#                 nome = nome.replace('DEF. EM PARTE','LIMINAR DEFERIDA EM PARTE')
+            
+#             if 'NAO VERIFICO NA ESPECIE A PRESENÇA DE PERICULUM IN MORA' in complemento and nome == '':
+#                 nome = 'LIMINAR INDEFERIDA'
+                
+#             if 'COLHAM-SE, PRIMEIRAMENTE, AS MANIFESTACOES' in complemento and nome == '':
+#                 nome = 'VISTA AO AGU'
+                
+#             if 'NEGO SEGUIMENTO A INICIAL' in complemento:
+#                 nome = 'NEGADO SEGUIMENTO'
+                
+#             if 'ANTE O EXPOSTO, NEGO SEGUIMENTO A PRESENTE ACA0' in complemento:
+#                 nome = 'NEGADO SEGUIMENTO'
+                
+#             if 'INDEFIRO LIMINARMENTE O PEDIDO' in complemento:
+#                 nome = 'INDEFERIDA A INICIAL'
+                
+        
+#         autuacao_retificada = 'NA'
+#         if 'RETIFICACAO DE AUTUACAO' in nome or 'RETIFICACAO DE AUTUACAO' in complemento:
+#             autuacao_retificada = 'sim'
+#             index = 'FILTRADO'
+            
+            
+# #         if (data == 'NA' or
+# #             'VISTA A PGR PARA FINS DE INTIMACAO' in nome or
+# #             'VISTA AO ADV' in nome or
+# #             'VISTA AO PROCURADOR-GERAL' in nome or
+# #             'RETIFICACAO DE AUTUACAO' in nome or 
+# #             'LANÇAMENTO INDEVIDO' in nome or 
+# #             'AMENTO INDEVIDO' in nome or 
+# #             'CONVERTIDO EM ELET' in nome or 
+# #             'APENSADO' in nome or 
+# #             'APENSACAO' in nome or
+# #             'DETERMINADA A REDISTRIB' in nome or
+# #             'DETERMINADA CITACAO' in nome or
+# #             'DETERMINADA INTIMACAO' in nome or
+# #             nome[:7] == 'CONCLUS' or 
+# #             'CONCLUSOS' in nome or 
+# #             nome == 'CONCLUSAO' or 
+# #             nome[:5] == "AUTOS" or 
+# #             'REMESSA DOS AUTOS' in nome or 
+# #             'COBRADA A DEVOLU' in nome or
+# #             nome == 'CERTIDAO' or 
+# #             nome == 'PETICAO' or 
+# #             'ARQUIVADA A PET' in nome or 
+# #             nome == 'CIENCIA' or 
+# #             nome == 'CIENTE' or
+# #             nome[:9] == 'COMUNICAD' or 
+# #             nome[:6] == 'INTIMA' or 
+# #             'COMUNICACAO ASSINAD' in nome or
+# #             'INFORMACOES PRESTADAS' in nome or
+# #             'JUNTADA' in nome or 
+# #             'DEVOLUCA DE' in nome or
+# #             'VISTA A PGR' in nome or 
+# #             'RECEBIMENTO DOS' in nome or 
+# #             'MANIFESTACAO DA' in nome or
+# #             nome == 'PETICAO AVULSA' or 
+# #             nome == 'PETICAO' or 
+# #             'DESENTRANHAMENTO' in nome or 
+# #             'RECEBIMENTO EXTERNO DOS AUTOS' in nome or
+# #             nome == 'VISTA AO AGU' or
+# #             'PUBLICADA, DJ' in nome or 
+# #             'JULGAMENTO PUBLICADA' in nome or
+# #             'DECISAO PUBLICADA' in nome or 
+# #             nome == 'DECISAO PUBLICADA, DJ:' or 
+# #             'PUBLICADA NO D' in nome or 
+# #             'REPUBLICAD' in nome or
+# #             nome == 'REMESSA DOS AUTOS' or
+# #             nome == 'REMESSA' or
+# #             'AUTOS DEVOLVIDOS' in nome or
+# #             nome[:7] == 'INFORMA' or
+# #             nome[:7] == 'PUBLICA' or
+# #             nome == 'VIDE' or
+# #             nome == 'ACORDAO N.:'or
+# #             nome == 'REMESSA:' or
+# #             nome == 'REMESSA' or
+# #             nome == 'AUTOS COM:' or
+# #             'EXPEDIDO' in nome or
+# #             nome[:7] == 'PUBLICA' or
+# #             'COMUNICADA D' in nome or
+# #             nome[:8] == 'COMUNICA' or
+# #             'INFORMACOES RECEBIDAS' in nome or
+# #             'EXPEDIDO OFICIO N' in nome or
+# #             nome[:6] == 'EXPEDI' or
+# #             'PEDIDO DE INFORMACOES' in nome):
+# #                 index = 'EXCLUIDO'
+        
+# #         # campo baixado
+# #         if (nome == 'DECORRIDO O PRAZO'):
+# #             transitoemjulgado = data 
+# #             index = 'FILTRADO'
+
+# #         if (nome == 'TRANSITADO EM JULGADO' or
+# #             nome == "TRANSITADO(A) EM JULGADO"):
+# #             transitoemjulgado = data 
+# #             index = 'FILTRADO'  
+
+# #         if nome[:5] == "BAIXA":
+# #             baixadoem = data
+# #             index = 'FILTRADO'
+            
+# #         if nome == 'PROCESSO FINDO':
+# #             processofindo = data
+# #             index = 'FILTRADO'
+            
+# #         if nome == 'PROTOCOLADO':
+# #             protocolado = data 
+# #             index = 'FILTRADO'
+            
+# #         if nome == 'AUTUADO':
+# #             autuado = data 
+# #             index = 'FILTRADO'
+            
+            
+# #         if (nome == 'DISTRIBUIDO' or 
+# #                 nome == 'REGISTRADO'):
+# #             distribuido = data
+# #             primeirorelator = complemento
+# #             primeirorelator = primeirorelator.replace('MIN. ','')
+# #             index = 'FILTRADO'
+            
+
+# #         if (nome == 'REGISTRADO A PRESIDENCIA' or 
+# #             nome == 'REGISTRADO'):
+# #             distribuido = data
+# #             primeirorelator = 'PRESIDENTE'
+# #             index = 'FILTRADO'
+            
+# #         if (nome == 'DISTRIBUIDO POR PREVENCAO' or
+# #             nome == 'DISTRIBUÍDO POR PREVENÇÃO'):
+# #             distribuido = data
+# #             primeirorelator = complemento
+# #             prevencao = "PREVENÇÃO"
+# #             index = 'FILTRADO'
+    
+# #         if (nome == 'DISTRIBUIDO/EXCLUSAO DE MINISTRO' or 
+# #             'DISTRIBUIDO POR EXCLUS' in nome):
+# #             distribuido = data
+# #             ministroexcluido = complemento
+# #             ministroexcluido = ministroexcluido.replace("MIN. ",'')
+# #             index = 'FILTRADO'        
+            
+# #         if nome[:7]=='CONEXAO' or nome == 'CONEXAO':
+# #             conexo = complemento
+# #             index = 'FILTRADO'
+
+
+# # #       # Identifica Rito do Art. 12, da Lei 9.868/99':
+# #         if ('ADOTADO RITO DO ART. 12' in complemento or 
+# #                 'ADOTADO RITO DO ART. 12' in nome or 
+# #                 'ADOTO O RITO DO ART. 12' in complemento or 
+# #                 'COM A ADOÇÃO DO RITO DE TRAMITAÇÃO ABREVIADA' in complemento or 
+# #                 'ENTENDO TER APLICAÇÃO NA HIPÓTESE O DISPOSTO NO ARTIGO 12 DA LEI 9868/99' in complemento):
+# #                 nome ='LIMINAR INDEFERIMENTO IMPLÍCITO (RITO ART. 12)'  
+                
+# #         if (' RITO' in complemento and
+# #                   '12' in complemento and 
+# #                   'ART' in complemento):
+# #                 ritoart12 = data
+                
+# #         if (' RITO' in nome and
+# #                   '12' in nome and 
+# #                   'ART' in nome):
+# #                 ritoart12 = data
+                
+# #         # insere orgaojulg         
+# #         if 'JULGAMENTO DO PLENO' in nome:
+# #             nome = nome.replace('JULGAMENTO DO PLENO','')
+# #             orgaojulg = 'PLENO'
+            
+# #         if 'JULGAMENTO POR DESPACHO' in nome and julgador == '':
+# #             nome=nome.replace('JULGAMENTO POR DESPACHO','')
+# #             orgaojulg = 'MONOCRATICA'
+            
+       
+# #         if 'LIMINAR JULGADA PELO PLENO - ' in nome:
+# #               nome = nome.replace('LIMINAR JULGADA PELO PLENO - ','')
+# #               orgaojulg = 'PLENO'
+              
+# #         if 'LIMINAR JULGADA POR DESPACHO - ' in nome:
+# #               nome = nome.replace('LIMINAR JULGADA POR DESPACHO - ','')
+# #               orgaojulg = 'MONOCRATICA'
+              
+# #         if 'DECISÃO DA PRESIDÊNCIA' in nome:
+# #               orgaojulg = 'PRESIDENCIA'
+              
+# #           # #identifica decisoes secundárias
+
+          
+# # # # questoes de ordem
+# #         if (   nome == 'QUESTAO DE ORDEM' or 
+# #             'DECISAO INTERLOCUTORIA' in nome or 
+# #             nome[:8] == 'DETERMINAD'):
+# #             interlocutorias.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if 'ATA DE JULGAMENTO' in nome:
+# #             atas.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if 'JULGAMENTO VIRTUAL' in nome:
+# #             virtual.append(andamento)
+# #             index = 'FILTRADO'    
+            
+# #         if ('REDISTRIBU' in nome or 
+# #             'SUBSTITUIÇÃO DO RELATOR' in nome or 
+# #             'SUBSTITUICAO DO RELATOR' in nome or 
+# #             'REDISTRIBUA-SE' in complemento):
+# #             redistribui.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if ('EMBARGOS' in nome or 
+# #             'INTERPOSTOS' in nome):
+# #             embargos.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if  ('DETERMINADA DILI' in nome or 
+# #             'DESPACHO ORDINATORIO' in nome or 
+# #             nome == 'DESPACHO' or 
+# #             nome[:8] == 'DESPACHO'):
+# #             despachos.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if ('AGRAVO ' in nome or 
+# #             'INTERPOSTO ' in nome or 
+# #             'HOMOLOGADA A DESISTENCIA' in nome or 
+# #             nome == 'REJEITADO'):
+# #             agravos.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if  ('RETIRADO DA MESA' in nome or 
+# #                 nome == 'ADIADO O JULGAMENTO' or 
+# #                 'NA LISTA DE JULGAMENTO' in nome or 
+# #                 'PROCESSO A JULGAMENTO' in nome or 
+# #                 'PAUTA' in nome or 
+# #                 'CALENDARIO' in nome or 
+# #                 'DIA PARA JULGAMENTO' in nome or 
+# #                 'EM MESA PARA' in nome or 
+# #                 'PAUTA' in nome or 
+# #                 'EM MESA' in nome or 
+# #                 'DE MESA' in nome or 
+# #                 'COM DIA PARA JULGAMENTO' in nome):
+# #             pautas.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         if ('PEDIDO DE LIMINAR' in nome or 
+# #                 'REQUERIDA TUTELA PROVISORIA' in nome):
+# #             pedidos.append(andamento)
+# #             index = 'FILTRADO'
+            
+# #         # ampliando data de transito para baixado ou processo findo
+# #         if baixadoem == 'NA':
+# #             baixadoem = processofindo
+            
+# #         if transitoemjulgado == 'NA':
+# #             transitoemjulgado = baixadoem
+                
+# #         # andamento[0] = index
+# #         # andamento[1] = data
+# #         # andamento[2] = nome
+# #         # andamento[3] = complemento
+# #         # andamento[5] = julgador
+        
+# #         andamento.append(orgaojulg)
+
+#         if index == 'FILTRADO':
+#             andamentos_filtrados.append(andamento)
+        
+#         elif index == 'EXCLUIDO':
+#             andamentos_excluidos.append(andamento)
+            
+#         else:
+#             a_analisar.append(andamento)
+            
+# #     if andamentos != []:
+# #         data_ultimo_andamento = andamentos[0][1]   
+# #     else:
+# #         data_ultimo_andamento = 'NA'
+            
+#     # return (andamentos_filtrados, andamentos_excluidos, a_analisar, interlocutorias, 
+#     #         atas, virtual, redistribui, embargos, despachos, agravos, pautas, pedidos, 
+#     #         baixadoem, primeirorelator, prevencao, ministroexcluido, protocolado, autuado,
+#     #         processofindo, ritoart12, transitoemjulgado, orgaojulg, conexo, 
+#     #         AutuacaoRetificada, data_ultimo_andamento)
+#     return (andamentos_filtrados, andamentos_excluidos, a_analisar, autuacao_retificada)
